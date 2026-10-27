@@ -1,0 +1,354 @@
+%============================================================
+%  《大模型技术全景》排版模板
+%  Markdown 源文件经 pandoc 转换后套用本模板，由 XeLaTeX 编译
+%============================================================
+\documentclass[UTF8,11pt,twoside,openany,fontset=none]{ctexbook}
+
+% ---------- 页面 ----------
+\usepackage{geometry}
+\geometry{paperwidth=170mm,paperheight=240mm,
+  inner=21mm,outer=17mm,top=19mm,bottom=22mm,
+  headheight=22pt,headsep=7mm,footskip=11mm}
+
+% ---------- 字体 ----------
+\usepackage{fontspec}
+\usepackage{xeCJK}
+
+% 西文：Palatino 系，正文与标题共用一套骨架
+\setmainfont{texgyrepagella}[
+  Extension=.otf,
+  UprightFont=*-regular, BoldFont=*-bold,
+  ItalicFont=*-italic, BoldItalicFont=*-bolditalic]
+\setsansfont{texgyreheros}[
+  Extension=.otf,
+  UprightFont=*-regular, BoldFont=*-bold,
+  ItalicFont=*-italic, BoldItalicFont=*-bolditalic]
+\setmonofont{Consolas}[Scale=0.90]
+
+% 中文：优先思源宋体/思源黑体，缺失时退回宋体/黑体
+\IfFontExistsTF{C:/Windows/Fonts/NotoSerifSC-VF.ttf}{
+  \setCJKmainfont{NotoSerifSC-VF.ttf}[Path=C:/Windows/Fonts/,AutoFakeBold=2.6]
+}{
+  \setCJKmainfont{SimSun}[AutoFakeBold=2.6]
+}
+\IfFontExistsTF{C:/Windows/Fonts/NotoSansSC-VF.ttf}{
+  \setCJKsansfont{NotoSansSC-VF.ttf}[Path=C:/Windows/Fonts/,AutoFakeBold=2.6]
+}{
+  \setCJKsansfont{SimHei}[AutoFakeBold=2.6]
+}
+\IfFontExistsTF{C:/Windows/Fonts/NotoSerifSC-VF.ttf}{
+  \setCJKfamilyfont{zhserif}{NotoSerifSC-VF.ttf}[Path=C:/Windows/Fonts/,AutoFakeBold=2.6]
+}{
+  \setCJKfamilyfont{zhserif}{SimSun}[AutoFakeBold=2.6]
+}
+\newcommand{\zhserif}{\CJKfamily{zhserif}}
+
+\usepackage{amsmath}
+\usepackage{unicode-math}
+\setmathfont{texgyrepagella-math.otf}
+
+% ---------- 行距与段落 ----------
+\usepackage{setspace}
+\setstretch{1.36}
+\setlength{\parindent}{2em}
+\setlength{\parskip}{0pt}
+\raggedbottom
+\clubpenalty=10000
+\widowpenalty=10000
+
+% ---------- 颜色 ----------
+\usepackage{xcolor}
+\definecolor{ink}{HTML}{191A1C}
+\definecolor{accent}{HTML}{1F3A6E}
+\definecolor{gold}{HTML}{A88447}
+\definecolor{graytext}{HTML}{6E7178}
+\definecolor{rulegray}{HTML}{D5D8DE}
+\definecolor{shadecolor}{HTML}{F5F6F8}
+\definecolor{coverbg}{HTML}{060A18}
+
+% ---------- 图形 ----------
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{%
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\linewidth}{\wd\pandoc@box}%
+  \ifdim\Gin@nat@height>\textheight
+    \Gscale@div\@tempb\textheight\Gin@nat@height
+    \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi
+  \fi
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi}
+\makeatother
+\graphicspath{{@@IMAGES@@/}{../}{./}}
+\usepackage{tikz}
+\usetikzlibrary{calc,positioning,shapes.geometric,arrows.meta,backgrounds,fit,patterns}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+
+% ---------- 表格 ----------
+\usepackage{longtable,booktabs,array,multirow,makecell,calc}
+\renewcommand{\arraystretch}{1.28}
+\newcounter{none}
+\usepackage{caption}
+\captionsetup{font={small,sf},labelfont={small,bf,color=accent},labelsep=quad,skip=8pt}
+\captionsetup[table]{position=top}
+
+% ---------- 代码 ----------
+\usepackage{fancyvrb}
+\usepackage{framed}
+$highlighting-macros$
+\makeatletter
+\@ifundefined{Shaded}{%
+  \newenvironment{Shaded}{\vspace{4pt}\begin{snugshade}\small}{\end{snugshade}\vspace{4pt}}%
+}{%
+  \renewenvironment{Shaded}{\vspace{4pt}\begin{snugshade}\small}{\end{snugshade}\vspace{4pt}}%
+}
+\def\verbatim@font{\normalfont\ttfamily\fontsize{8.6}{11}\selectfont}
+\makeatother
+
+% ---------- 标题样式 ----------
+\usepackage{titlesec}
+\usepackage{titletoc}
+\usepackage{zhnumber}
+
+\newcommand{\partpage}[2]{%
+  \clearpage
+  \thispagestyle{empty}%
+  \phantomsection
+  \addcontentsline{toc}{part}{第#1部\quad #2}%
+  \markboth{第#1部\quad #2}{}%
+  \vspace*{46mm}%
+  \noindent{\sffamily\bfseries\fontsize{11}{14}\selectfont\color{accent} 第#1部}\par
+  \vspace{13pt}
+  \noindent{\sffamily\bfseries\fontsize{29}{37}\selectfont\color{ink}\zhserif #2}\par
+  \vspace{13pt}
+  \noindent{\color{gold}\rule{42mm}{0.9pt}}\par
+  \vspace{28pt}%
+}
+
+\titleformat{\part}[display]
+  {\normalfont\sffamily\raggedright}
+  {\color{accent}\fontsize{12}{15}\selectfont\bfseries 第\,\zhnum{part}\,部}
+  {16pt}
+  {\color{ink}\fontsize{31}{38}\selectfont\bfseries\zhserif}
+  [\vspace{18pt}{\color{gold}\rule{42mm}{0.9pt}}]
+\titlespacing*{\part}{0pt}{48pt}{34pt}
+
+\titleformat{\chapter}[display]
+  {\normalfont\sffamily\raggedright}
+  {\color{accent}\fontsize{10.5}{13}\selectfont\bfseries 第\,\zhnum{chapter}\,章}
+  {12pt}
+  {\color{ink}\fontsize{23}{29}\selectfont\bfseries\zhserif}
+  [\vspace{10pt}{\color{rulegray}\rule{\textwidth}{0.5pt}}]
+\titlespacing*{\chapter}{0pt}{6pt}{24pt}
+
+\titleformat{\section}
+  {\normalfont\sffamily\bfseries\fontsize{14.5}{19}\selectfont\color{ink}}
+  {\color{accent}\thesection}{0.55em}{}
+\titlespacing*{\section}{0pt}{19pt}{7pt}
+
+\titleformat{\subsection}
+  {\normalfont\sffamily\bfseries\fontsize{12}{15.5}\selectfont\color{ink}}
+  {\color{accent}\thesubsection}{0.5em}{}
+\titlespacing*{\subsection}{0pt}{14pt}{5pt}
+
+\titleformat{\subsubsection}
+  {\normalfont\sffamily\bfseries\fontsize{10.8}{14}\selectfont\color{ink}}
+  {\color{accent}\thesubsubsection}{0.5em}{}
+\titlespacing*{\subsubsection}{0pt}{11pt}{3pt}
+
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{0}
+
+% 图表按章编号：图 3-1
+\renewcommand{\thefigure}{\thechapter-\arabic{figure}}
+\renewcommand{\thetable}{\thechapter-\arabic{table}}
+\renewcommand{\theequation}{\thechapter-\arabic{equation}}
+
+% ---------- 页眉页脚 ----------
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{rulegray}\leaders\hrule height \headrulewidth\hfill}}
+\fancyhead[LE]{\small\sffamily\color{graytext}\thepage\quad 大模型技术全景}
+\fancyhead[RO]{\small\sffamily\color{graytext}\leftmark\quad\thepage}
+\fancypagestyle{plain}{\fancyhf{}%
+  \renewcommand{\headrulewidth}{0.4pt}%
+  \fancyhead[LE,RO]{\small\sffamily\color{graytext}\thepage}%
+  \renewcommand{\headrule}{\hbox to\headwidth{\color{rulegray}\leaders\hrule height \headrulewidth\hfill}}}
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+\renewcommand{\sectionmark}[1]{}
+
+% ---------- 目录 ----------
+\usepackage{tocloft}
+\renewcommand{\cftpartfont}{\sffamily\bfseries\fontsize{11.5}{16}\selectfont\color{accent}}
+\renewcommand{\cftpartpagefont}{\sffamily\bfseries\color{accent}}
+\renewcommand{\cftchapfont}{\sffamily\fontsize{10}{14.5}\selectfont}
+\renewcommand{\cftchappagefont}{\sffamily\fontsize{10}{14.5}\selectfont}
+\renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}}
+\setlength{\cftbeforepartskip}{18pt}
+\setlength{\cftbeforechapskip}{6pt}
+\renewcommand{\contentsname}{目\quad 录}
+
+% ---------- 引用与环境 ----------
+\renewenvironment{quote}
+  {\begin{tcolorbox}[enhanced, breakable, frame hidden, colback=white,
+    borderline west={1.6pt}{0pt}{gold!55!black}, left=12pt, right=6pt,
+    top=4pt, bottom=4pt, before skip=10pt, after skip=10pt,
+    fontupper=\small\color{graytext}\linespread{1.45}\selectfont]}
+  {\end{tcolorbox}}
+
+\newenvironment{partintro}
+  {\par\vspace{10pt}\begin{minipage}{0.88\textwidth}\small\color{graytext}%
+   \linespread{1.55}\selectfont\zhserif}
+  {\end{minipage}\par}
+
+\newtcolorbox{keybox}{
+  enhanced, breakable, colback=shadecolor, colframe=shadecolor,
+  boxrule=0pt, leftrule=2.4pt, arc=0pt, outer arc=0pt,
+  left=10pt, right=10pt, top=8pt, bottom=8pt,
+  before skip=10pt, after skip=10pt,
+  colframe=accent!70!black,
+  fontupper=\small}
+
+\newenvironment{keypoint}{\begin{keybox}}{\end{keybox}}
+
+% ---------- 列表 ----------
+\usepackage{enumitem}
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setlist[itemize]{leftmargin=2.2em,itemsep=3pt,topsep=5pt,parsep=0pt,before={\raggedright}}
+\setlist[enumerate]{leftmargin=2.4em,itemsep=3pt,topsep=5pt,parsep=0pt}
+\renewcommand{\labelitemi}{\color{accent}\raisebox{0.15ex}{\scriptsize\textbullet}}
+
+% ---------- 其他 ----------
+\usepackage{needspace}
+\setlength{\emergencystretch}{3em}
+\usepackage{microtype}
+\usepackage{etoolbox}
+\usepackage[hidelinks,bookmarksnumbered,bookmarksopen=true]{hyperref}
+\hypersetup{
+  pdftitle={大模型技术全景},
+  pdfauthor={Dr. Dezeming},
+  pdfsubject={大语言模型的架构、训练、对齐与推理},
+  pdfkeywords={大模型, Transformer, 预训练, RLHF, MoE, 推理},
+  linkcolor=accent, urlcolor=accent, citecolor=accent,
+  bookmarksdepth=2
+}
+\usepackage{url}
+
+%============= 封面 / 封底 =============
+\newcommand{\coverpage}{%
+\thispagestyle{empty}%
+\begin{tikzpicture}[remember picture,overlay]
+  \fill[coverbg] (current page.south west) rectangle (current page.north east);
+  % 星河图片作为主视觉，下缘渐隐入底色
+  \node[anchor=north,inner sep=0pt] at (current page.north)
+    {\includegraphics[width=\paperwidth]{cover/cover-art.jpg}};
+  % 顶部信息
+  \draw[white,opacity=0.35,line width=0.4pt]
+    ([xshift=21mm,yshift=-20mm]current page.north west) --
+    ([xshift=-17mm,yshift=-20mm]current page.north east);
+  \node[anchor=north west,text=white,opacity=0.72,font=\sffamily\fontsize{7.6}{9}\selectfont]
+    at ([xshift=21mm,yshift=-24mm]current page.north west) {LARGE LANGUAGE MODELS};
+  \node[anchor=north east,text=white,opacity=0.72,font=\sffamily\fontsize{7.6}{9}\selectfont]
+    at ([xshift=-17mm,yshift=-24mm]current page.north east) {ARCHITECTURE · TRAINING · ALIGNMENT};
+  % 书名
+  \node[anchor=west,text=white,font=\sffamily\bfseries\fontsize{37}{45}\selectfont]
+    at ([xshift=21mm,yshift=96mm]current page.south west) {大模型技术全景};
+  \draw[gold,line width=0.9pt]
+    ([xshift=21mm,yshift=86mm]current page.south west) -- ++(38mm,0);
+  \node[anchor=north west,text=white,opacity=0.92,font=\sffamily\fontsize{12}{17}\selectfont]
+    at ([xshift=21mm,yshift=79mm]current page.south west) {从 Transformer 到智能体时代的};
+  \node[anchor=north west,text=white,opacity=0.92,font=\sffamily\fontsize{12}{17}\selectfont]
+    at ([xshift=21mm,yshift=71mm]current page.south west) {架构、训练与推理};
+  % 底部
+  \node[anchor=south west,text=white,opacity=0.60,font=\sffamily\fontsize{9}{12}\selectfont]
+    at ([xshift=21mm,yshift=21mm]current page.south west) {Dr. Dezeming};
+  \node[anchor=south east,text=white,opacity=0.45,font=\sffamily\fontsize{8}{11}\selectfont]
+    at ([xshift=-17mm,yshift=21mm]current page.south east) {2026};
+\end{tikzpicture}%
+\clearpage}
+
+\newcommand{\backcover}{%
+\thispagestyle{empty}%
+\begin{tikzpicture}[remember picture,overlay]
+  \fill[coverbg] (current page.south west) rectangle (current page.north east);
+  \node[anchor=north,inner sep=0pt] at (current page.north)
+    {\includegraphics[width=\paperwidth]{cover/back-art.jpg}};
+  \node[anchor=west,text=white,font=\sffamily\bfseries\fontsize{13}{17}\selectfont]
+    at ([xshift=21mm,yshift=-110mm]current page.north west) {关于本书};
+  \draw[gold,line width=0.6pt]
+    ([xshift=21mm,yshift=-114mm]current page.north west) -- ++(22mm,0);
+  \node[anchor=north west,text=white,opacity=0.86,text width=128mm,
+        font=\zhserif\fontsize{8.6}{14.5}\selectfont,align=justify]
+    at ([xshift=21mm,yshift=-121mm]current page.north west) {%
+      语言模型在几年里从“会续写”变成了“会推理、会用工具、会干活”。这本书沿着一条连续的技术线索，
+      把这条路上真正起作用的设计讲清楚：数据怎么筛，模型怎么长高长宽，注意力为什么这样改，
+      专家网络如何稀疏，对齐怎样从偏好里学出行为，推理引擎又如何在显存与延迟之间做取舍。};
+  \node[anchor=north west,text=white,opacity=0.58,text width=120mm,
+        font=\sffamily\fontsize{8}{12.5}\selectfont,align=justify]
+    at ([xshift=21mm,yshift=-152mm]current page.north west) {%
+      全书由动机出发，逐层展开到当前最先进的做法。每一处改进都放回它要解决的问题里去看，
+      既解释为什么有效，也说明代价在哪里。};
+  \draw[white,opacity=0.25,line width=0.4pt]
+    ([xshift=21mm,yshift=34mm]current page.south west) --
+    ([xshift=-17mm,yshift=34mm]current page.south east);
+  \node[anchor=south west,text=white,opacity=0.55,font=\sffamily\fontsize{8}{11}\selectfont]
+    at ([xshift=21mm,yshift=22mm]current page.south west) {大模型技术全景 \quad·\quad 2026};
+  \node[anchor=south east,text=white,opacity=0.40,font=\sffamily\fontsize{7.5}{10}\selectfont]
+    at ([xshift=-17mm,yshift=22mm]current page.south east) {LLM BOOK};
+\end{tikzpicture}%
+\clearpage}
+
+\newcommand{\titlepagefront}{%
+\thispagestyle{empty}%
+\begin{center}
+\vspace*{38mm}
+{\sffamily\fontsize{9}{12}\selectfont\color{graytext}LARGE LANGUAGE MODELS}\\[16mm]
+{\sffamily\bfseries\fontsize{30}{38}\selectfont 大模型技术全景}\\[7mm]
+{\sffamily\fontsize{12}{18}\selectfont\color{graytext} 从 Transformer 到智能体时代的架构、训练与推理}\\[26mm]
+{\color{gold}\rule{28mm}{0.8pt}}\\[26mm]
+{\sffamily\fontsize{11}{15}\selectfont Dr. Dezeming}\\[3mm]
+{\sffamily\fontsize{9}{13}\selectfont\color{graytext} 2026}
+\end{center}
+\clearpage}
+
+
+\newcommand{\copyrightpage}{%
+\thispagestyle{empty}%
+\vspace*{\fill}
+\begin{center}
+{\sffamily\bfseries\fontsize{15}{20}\selectfont 大模型技术全景}\\[6mm]
+{\sffamily\fontsize{10}{14}\selectfont 从 Transformer 到智能体时代的架构、训练与推理}\\[16mm]
+{\sffamily\fontsize{10}{15}\selectfont Dr. Dezeming}\\[4mm]
+{\sffamily\fontsize{9}{13}\selectfont\color{graytext} 2026 年 10 月}\\[18mm]
+{\fontsize{8.6}{13}\selectfont\color{graytext}
+\begin{minipage}{0.78\textwidth}
+本书文字与插图采用 Creative Commons Attribution-NonCommercial 4.0
+国际许可协议（CC BY-NC 4.0）授权。转载请注明作者与出处，不得用于商业用途。\\
+书中引用的论文版权归原作者所有，仅作学术讨论与索引之用。
+\end{minipage}}
+\end{center}
+\vspace*{\fill}
+\clearpage}
+
+%============= 文档 =============
+\begin{document}
+\frontmatter
+\coverpage
+\titlepagefront
+\copyrightpage
+\input{front.tex}
+\clearpage
+\tableofcontents
+\clearpage
+\mainmatter
+$body$
+\backmatter
+\input{afterword.tex}
+\backcover
+\end{document}
