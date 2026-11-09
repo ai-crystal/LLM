@@ -174,7 +174,7 @@ $highlighting-macros$
 \renewcommand{\headrulewidth}{0.4pt}
 \renewcommand{\footrulewidth}{0pt}
 \renewcommand{\headrule}{\hbox to\headwidth{\color{rulegray}\leaders\hrule height \headrulewidth\hfill}}
-\fancyhead[LE]{\small\sffamily\color{graytext}\thepage\quad 大模型技术全景}
+\fancyhead[LE]{\small\sffamily\color{graytext}\thepage\quad @@SERIES@@}
 \fancyhead[RO]{\small\sffamily\color{graytext}\leftmark\quad\thepage}
 \fancypagestyle{plain}{\fancyhf{}%
   \renewcommand{\headrulewidth}{0.4pt}%
@@ -231,7 +231,7 @@ $highlighting-macros$
 \usepackage{etoolbox}
 \usepackage[hidelinks,bookmarksnumbered,bookmarksopen=true]{hyperref}
 \hypersetup{
-  pdftitle={大模型技术全景},
+  pdftitle={@@TITLE@@},
   pdfauthor={Dr. Dezeming},
   pdfsubject={大语言模型的架构、训练、对齐与推理},
   pdfkeywords={大模型, Transformer, 预训练, RLHF, MoE, 推理},
@@ -257,14 +257,15 @@ $highlighting-macros$
   \node[anchor=north east,text=white,opacity=0.72,font=\sffamily\fontsize{7.6}{9}\selectfont]
     at ([xshift=-17mm,yshift=-24mm]current page.north east) {ARCHITECTURE · TRAINING · ALIGNMENT};
   % 书名
+  \node[anchor=west,text=white,opacity=0.70,font=\sffamily\fontsize{9}{12}\selectfont]
+    at ([xshift=21mm,yshift=113mm]current page.south west) {@@SERIES@@ \;·\; 系列};
   \node[anchor=west,text=white,font=\sffamily\bfseries\fontsize{37}{45}\selectfont]
-    at ([xshift=21mm,yshift=96mm]current page.south west) {大模型技术全景};
+    at ([xshift=21mm,yshift=96mm]current page.south west) {@@VOLUME@@};
   \draw[gold,line width=0.9pt]
     ([xshift=21mm,yshift=86mm]current page.south west) -- ++(38mm,0);
-  \node[anchor=north west,text=white,opacity=0.92,font=\sffamily\fontsize{12}{17}\selectfont]
-    at ([xshift=21mm,yshift=79mm]current page.south west) {从 Transformer 到智能体时代的};
-  \node[anchor=north west,text=white,opacity=0.92,font=\sffamily\fontsize{12}{17}\selectfont]
-    at ([xshift=21mm,yshift=71mm]current page.south west) {架构、训练与推理};
+  \node[anchor=north west,text=white,opacity=0.92,font=\sffamily\fontsize{12}{17}\selectfont,
+        text width=126mm,align=left]
+    at ([xshift=21mm,yshift=79mm]current page.south west) {@@SUBTITLE@@};
   % 底部
   \node[anchor=south west,text=white,opacity=0.60,font=\sffamily\fontsize{9}{12}\selectfont]
     at ([xshift=21mm,yshift=21mm]current page.south west) {Dr. Dezeming};
@@ -298,7 +299,7 @@ $highlighting-macros$
     ([xshift=21mm,yshift=34mm]current page.south west) --
     ([xshift=-17mm,yshift=34mm]current page.south east);
   \node[anchor=south west,text=white,opacity=0.55,font=\sffamily\fontsize{8}{11}\selectfont]
-    at ([xshift=21mm,yshift=22mm]current page.south west) {大模型技术全景 \quad·\quad 2026};
+    at ([xshift=21mm,yshift=22mm]current page.south west) {@@SERIES@@ \quad·\quad 2026};
   \node[anchor=south east,text=white,opacity=0.40,font=\sffamily\fontsize{7.5}{10}\selectfont]
     at ([xshift=-17mm,yshift=22mm]current page.south east) {LLM BOOK};
 \end{tikzpicture}%
@@ -309,8 +310,9 @@ $highlighting-macros$
 \begin{center}
 \vspace*{38mm}
 {\sffamily\fontsize{9}{12}\selectfont\color{graytext}LARGE LANGUAGE MODELS}\\[16mm]
-{\sffamily\bfseries\fontsize{30}{38}\selectfont 大模型技术全景}\\[7mm]
-{\sffamily\fontsize{12}{18}\selectfont\color{graytext} 从 Transformer 到智能体时代的架构、训练与推理}\\[26mm]
+{\sffamily\fontsize{9}{12}\selectfont\color{graytext}@@SERIES@@}\\[3mm]
+{\sffamily\bfseries\fontsize{30}{38}\selectfont @@VOLUME@@}\\[7mm]
+{\sffamily\fontsize{12}{18}\selectfont\color{graytext} @@SUBTITLE@@}\\[26mm]
 {\color{gold}\rule{28mm}{0.8pt}}\\[26mm]
 {\sffamily\fontsize{11}{15}\selectfont Dr. Dezeming}\\[3mm]
 {\sffamily\fontsize{9}{13}\selectfont\color{graytext} 2026}
@@ -322,8 +324,8 @@ $highlighting-macros$
 \thispagestyle{empty}%
 \vspace*{\fill}
 \begin{center}
-{\sffamily\bfseries\fontsize{15}{20}\selectfont 大模型技术全景}\\[6mm]
-{\sffamily\fontsize{10}{14}\selectfont 从 Transformer 到智能体时代的架构、训练与推理}\\[16mm]
+{\sffamily\bfseries\fontsize{15}{20}\selectfont @@VOLUME@@}\\[6mm]
+{\sffamily\fontsize{10}{14}\selectfont @@SUBTITLE@@}\\[16mm]
 {\sffamily\fontsize{10}{15}\selectfont Dr. Dezeming}\\[4mm]
 {\sffamily\fontsize{9}{13}\selectfont\color{graytext} 2026 年 10 月}\\[18mm]
 {\fontsize{8.6}{13}\selectfont\color{graytext}
