@@ -78,3 +78,14 @@
 ## 许可
 
 本书文字与插图采用 [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/) 许可，转载请注明作者与出处，不得用于商业用途。书中引用的论文版权归原作者所有。
+
+## 分卷
+
+| 卷 | 文件 | 页数 |
+|---|---|---|
+| 入门篇：大模型是什么 | [output/v1-intro.pdf](output/v1-intro.pdf) | 93 |
+| 基础篇：从预测下一个词到 Transformer | [output/v2-basics.pdf](output/v2-basics.pdf) | 149 |
+| 预训练篇：数据、词表与规模 | [output/v3-pretrain.pdf](output/v3-pretrain.pdf) | 147 |
+| 架构改造篇：注意力、归一化与专家网络 | [output/v4-architecture.pdf](output/v4-architecture.pdf) | 113 |
+
+每卷单独编译：双击 `build-v1-intro.bat` … `build-v4-architecture.bat`，或 `python book/build/build.py --vol v3-pretrain`。
