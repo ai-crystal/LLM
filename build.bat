@@ -37,11 +37,13 @@ rem ---- usage ----
 rem   build.bat                 build every book
 rem   build.bat v2-basics       build one book
 rem   build.bat check           health check only
+rem   build.bat site            regenerate sidebar / per-book README
 rem   build.bat figures         redraw all figures
 rem   build.bat figures 03      redraw figures of chapter 03 (volume 2 only)
 
 if "%~1"=="" goto build_all
 if /i "%~1"=="check" goto check
+if /i "%~1"=="site" goto site
 if /i "%~1"=="figures" goto figures
 goto build_one
 
@@ -58,6 +60,14 @@ exit /b 0
 if errorlevel 1 goto failed
 echo.
 echo Done. output\
+pause
+exit /b 0
+
+:site
+%PY% "books/build/make_site.py"
+if errorlevel 1 goto failed
+echo.
+echo Site navigation regenerated.
 pause
 exit /b 0
 

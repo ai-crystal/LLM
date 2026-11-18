@@ -93,6 +93,7 @@ build.bat                 构建全部册
 build.bat v2-basics       构建基础篇
 build.bat check           核对目录、图片与路径
 build.bat figures         重画插图
+build.bat site            重新生成侧栏与各册首页
 ```
 
 输出在 `output/`。每册的正文在 `books/<册名>/chapters/`，插图在 `books/<册名>/images/`，绘图脚本在 `books/code/`。
