@@ -4,9 +4,9 @@
 
 **Dr. Dezeming**　·　2026
 
-[开始阅读](#/README)
+[开始阅读](/README.md)
 
-- 第一卷 入门篇 —— [在线阅读](book/v1-intro/front.md)｜[PDF](output/v1-intro.pdf)
-- 第二卷 基础篇 —— [在线阅读](book/v2-basics/front.md)｜[PDF](output/v2-basics.pdf)
-- 第三卷 预训练篇 —— [在线阅读](book/v3-pretrain/front.md)｜[PDF](output/v3-pretrain.pdf)
-- 第四卷 架构改造篇 —— [在线阅读](book/v4-architecture/front.md)｜[PDF](output/v4-architecture.pdf)
+- 入门篇：大模型是什么 —— [读](/books/v1-intro/README.md)｜[下](/output/v1-intro.pdf)
+- 基础篇：从预测下一个词到 Transformer —— [读](/books/v2-basics/README.md)｜[下](/output/v2-basics.pdf)
+- 预训练篇：数据、词表与规模 —— [读](/books/v3-pretrain/README.md)｜[下](/output/v3-pretrain.pdf)
+- 架构改造篇：注意力、归一化与专家网络 —— [读](/books/v4-architecture/README.md)｜[下](/output/v4-architecture.pdf)

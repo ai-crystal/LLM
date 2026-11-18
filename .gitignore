@@ -1,10 +1,11 @@
 # 本地私有资料：写作规范、大纲、Agent 记录、下载的论文与 PDF 源文件
 _private/
 
-# 构建中间产物
-book/build/work/
-book/code/**/out/
-book/code/_out/
+# 构建中间产物（每册一个子目录）
+books/build/work/
+books/build/fonts/
+books/code/**/out/
+books/code/_out/
 *.aux
 *.log
 *.out
@@ -17,9 +18,6 @@ Thumbs.db
 __pycache__/
 .vscode/
 .idea/
-
-# 绘图脚本生成的字体缓存
-book/build/fonts/
 
 # 根目录旧版 PDF（正式产物在 output/）
 /*.pdf
