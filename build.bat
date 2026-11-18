@@ -27,5 +27,5 @@ if errorlevel 1 (
     exit /b 1
 )
 echo.
-echo Done. PDF is in output\llm-book.pdf
+echo Done. PDFs are in output\v1-intro.pdf ... v4-architecture.pdf
 pause

@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 """把 book/code/chNN/out/*.pdf 转成 book/images/NN/*.png。
 
-书稿 Markdown 引用的是 PNG（GitHub 网页端可直接显示），
-PDF 由各章绘图脚本生成，只作为中间产物，不进入仓库。
+只服务旧的单卷合订本（书稿已拆成多卷，各卷插图由 book/code/figs_vN.py
+直接输出 PNG，不再需要这步转换）。旧稿与旧插图已移到 _private/legacy/。
 
 用法：python book/build/images.py
 """

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""构建《大模型技术全景》系列中某一卷的 PDF。
+"""构建《大模型技术全景》某一卷的 PDF。
 
 用法：
-    python book/build/build.py --vol v1-intro
-    python book/build/build.py            # 旧的单卷合订本
+    python book/build/build.py --vol v1-intro   # 只构建一卷
+    python book/build/build.py                  # 构建 book/ 下全部已成稿的卷
 """
 from __future__ import annotations
 
@@ -116,38 +116,18 @@ def build_once(pandoc: str, xelatex: str, body: str, images: Path, meta: dict, t
     return WORK / f"book{tag}.pdf"
 
 
-def main() -> None:
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--vol", help="卷目录名，例如 v1-intro")
-    args = ap.parse_args()
+def build_vol(name: str, pandoc: str, xelatex: str) -> None:
+    vol = BOOK / name
+    meta = json.loads((vol / "meta.json").read_text(encoding="utf-8"))
+    manifest = vol / "manifest.txt"
+    images = vol / "images"
+    output = ROOT / "output" / meta.get("output", f"{name}.pdf")
+    front = vol / "front.md"
+    afterword = vol / "afterword.md"
+    tag = "-" + name
 
-    WORK.mkdir(parents=True, exist_ok=True)
-    pandoc = find_tool("pandoc")
-    xelatex = find_tool("xelatex")
-    if not pandoc or not xelatex:
-        raise SystemExit("pandoc or xelatex not found. Check EXTRA_PATH in book/build/build.py.")
-
-    if args.vol:
-        vol = BOOK / args.vol
-        meta = json.loads((vol / "meta.json").read_text(encoding="utf-8"))
-        manifest = vol / "manifest.txt"
-        base = vol
-        images = vol / "images"
-        output = ROOT / "output" / meta.get("output", f"{args.vol}.pdf")
-        front = vol / "front.md"
-        afterword = vol / "afterword.md"
-        tag = "-" + args.vol
-    else:
-        meta = {}
-        manifest = BOOK / "build" / "manifest.txt"
-        base = BOOK
-        images = BOOK / "images"
-        output = ROOT / "output" / "llm-book.pdf"
-        front = BOOK / "front" / "preface.md"
-        afterword = BOOK / "front" / "afterword.md"
-        tag = ""
-
-    body = assemble(manifest, base, images)
+    print(f"== {name}")
+    body = assemble(manifest, vol, images)
     print("[1/4] assemble markdown")
     fragment(front, WORK / "front.tex", "前言", pandoc)
     if afterword.exists():
@@ -181,6 +161,35 @@ def main() -> None:
     output.parent.mkdir(exist_ok=True)
     shutil.copyfile(pdf, output)
     print(f"[4/4] done: {output} ({size_mb:.1f} MB)")
+
+
+def volumes() -> list[str]:
+    """book/ 下所有带 meta.json 的卷目录，按名字排序（v1 → v8）。"""
+    return sorted(p.name for p in BOOK.glob("v*")
+                  if (p / "meta.json").exists() and (p / "manifest.txt").exists())
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--vol", help="卷目录名，例如 v1-intro；不传则构建全部已成稿的卷")
+    args = ap.parse_args()
+
+    WORK.mkdir(parents=True, exist_ok=True)
+    pandoc = find_tool("pandoc")
+    xelatex = find_tool("xelatex")
+    if not pandoc or not xelatex:
+        raise SystemExit("pandoc or xelatex not found. Check EXTRA_PATH in book/build/build.py.")
+
+    if args.vol:
+        targets = [args.vol]
+    else:
+        targets = volumes()
+        if not targets:
+            raise SystemExit("book/ 下没有可构建的卷（缺 meta.json 或 manifest.txt）")
+        print("building:", ", ".join(targets))
+
+    for name in targets:
+        build_vol(name, pandoc, xelatex)
 
 
 if __name__ == "__main__":
