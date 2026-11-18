@@ -8,6 +8,7 @@ r"""《大模型技术全景 · 基础篇》（第二卷）插图，共 5 张。
 输出：
     book/v2-basics/images/01/ngram-sparsity.png
     book/v2-basics/images/03/rnn-unroll.png
+    book/v2-basics/images/03/lstm-unroll.png
     book/v2-basics/images/04/additive-attention.png
     book/v2-basics/images/05/qkv.png
     book/v2-basics/images/07/multihead.png
@@ -21,6 +22,7 @@ r"""《大模型技术全景 · 基础篇》（第二卷）插图，共 5 张。
 读图顺序（也是脚本里的顺序）：
     01  n-gram 组合数 vs 语料覆盖 —— 柱间空白就是零概率
     03  RNN 沿时间展开 —— 蓝色前向、红色 BPTT 回流
+    03b LSTM 沿时间展开 —— c 是加法传送带，h 仍要过矩阵
     04  加性注意力 —— 解码器状态对 4 个编码器状态的权重
     05  Q/K/V —— 从 T×d 到 T×p，再到 T×T 的注意力矩阵
     07  多头 —— d 切成 4 头，各自注意力，拼接后乘 W^O 混合
@@ -35,7 +37,7 @@ sys.path.insert(0, str(HERE))
 
 import numpy as np
 
-from figstyle import (BG, GOLD, GRAY, INK, LGRAY, NAVY, NAVY_L, RED, TEAL,
+from figstyle import (BG, GOLD, GRAY, INK, LGRAY, NAVY, NAVY_L, NAVY_XL, RED, TEAL,
                       box, arrow, plt, setup)
 from matplotlib.colors import to_rgb
 from matplotlib.patches import Rectangle
@@ -272,6 +274,85 @@ def fig_03_rnn():
     note(ax, 9.92, 2.93, r"$\cdots$", fs=11, color=GRAY, ha="left")
 
     save(fig, "03/rnn-unroll.png")
+
+
+# ---------------------------------------------------------------- 03 LSTM 展开
+
+def fig_03_lstm():
+    """第 3 章：LSTM 三个时刻；c 是加法传送带，h 仍要穿过四组门。"""
+    fig, ax = canvas(3.62)
+
+    cols = [2.55, 5.30, 8.05]
+    y_c, y_cell, y_h, y_x = 5.55, 2.85, 1.45, 0.42
+    cw, chh = 1.72, 1.46            # 单元
+    hw, hh = 0.95, 0.58             # h
+    xw, xh = 0.95, 0.52             # x
+
+    txt(ax, 5.20, 7.02, r"记忆带 $c$ 只做加法与逐元素乘法，$h$ 仍要穿过四组 $W$",
+        fs=FS, color=INK)
+    note(ax, 5.20, 6.62,
+         r"红色虚线：$\partial L/\partial c$ 沿 $c$ 往回走，每步只乘一个门")
+    note(ax, 5.20, 6.28,
+         r"$c_t=f_t\odot c_{t-1}+i_t\odot\tilde c_t$：连乘项里只有门，没有矩阵；"
+         r"$\partial L/\partial h$ 依旧乘 $W^{\top}$", fs=FS_S)
+
+    # 起点
+    box(ax, 0.22, y_c - 0.29, 0.95, 0.58, "$c_0$", fs=FS, fc="white",
+        ec=LGRAY, tc=GRAY, lw=0.7)
+    box(ax, 0.22, y_h, hw, hh, "$h_0$", fs=FS, fc="white",
+        ec=LGRAY, tc=GRAY, lw=0.7)
+    note(ax, 0.22, 0.22, r"$h_0=c_0=\mathbf{0}$", fs=FS_S, ha="left")
+
+    for i, cx in enumerate(cols):
+        t = i + 1
+        # 单元
+        box(ax, cx - cw / 2, y_cell, cw, chh, "", fc=tint(NAVY, 0.05),
+            ec=NAVY_L, lw=0.7)
+        note(ax, cx, y_cell + chh - 0.19, "LSTM 单元", color=INK, fs=FS - 0.5)
+        chips = [(r"$f_{%d}$" % t, -0.44, 0.86), (r"$i_{%d}$" % t, 0.44, 0.86),
+                 (r"$\tilde c_{%d}$" % t, -0.44, 0.36), (r"$o_{%d}$" % t, 0.44, 0.36)]
+        for lab, dx, dy in chips:
+            box(ax, cx + dx - 0.34, y_cell + dy - 0.17, 0.68, 0.34, lab,
+                fs=FS - 1.0, fc="white", ec=NAVY_XL, lw=0.5, rounded=0.05)
+
+        # 输入 x
+        box(ax, cx - 0.50 - xw / 2, y_x, xw, xh, f"$x_{t}$", fs=FS, fc=BG,
+            ec=NAVY_L)
+        arrow(ax, (cx - 0.50, y_x + xh + 0.01), (cx - 0.44, y_cell - 0.02),
+              lw=0.8)
+
+        # h
+        box(ax, cx + 0.32, y_h, hw, hh, f"$h_{t}$", fs=FS + 1.5,
+            fc=tint(NAVY, 0.20), ec=NAVY, lw=0.9, weight="bold")
+        arrow(ax, (cx + 0.34, y_cell - 0.02), (cx + 0.60, y_h + hh + 0.02),
+              lw=0.9)
+        # h_{t-1} → 单元（弧线进左侧）
+        if i:
+            px = cols[i - 1] + 0.32 + hw + 0.02
+        else:
+            px = 0.22 + hw + 0.02
+        arrow(ax, (px, y_h + hh - 0.10), (cx - cw / 2 - 0.02, y_cell + 0.44),
+              lw=0.8, rad=-0.16)
+
+        # 记忆带：c_{t-1} ⊙ f_t ⊕ i_t⊙c̃_t → c_t
+        src = cols[i - 1] + 0.04 if i else 0.22 + 0.95
+        arrow(ax, (src, y_c), (cx - 0.02, y_c), lw=1.0)
+        note(ax, cx - 0.52, y_c - 0.22, r"$\odot f_{%d}$" % t,
+             color=TEAL, fs=FS_S)
+        arrow(ax, (cx, y_cell + chh + 0.02), (cx, y_c - 0.03), lw=1.0)
+        note(ax, cx + 0.10, (y_cell + chh + y_c) / 2 + 0.06,
+             r"$i_{%d}\odot\tilde c_{%d}$" % (t, t),
+             fs=FS_S, color=GOLD, ha="left")
+        ax.plot([cx], [y_c], marker="o", ms=2.6, color=NAVY, zorder=6)
+
+        # 反向：梯度沿 c 回传
+        if i:
+            arrow(ax, (cx, y_c + 0.40), (cols[i - 1], y_c + 0.40), color=RED,
+                  lw=0.8, ls=(0, (3.2, 2.0)))
+
+    note(ax, 9.72, y_c, r"$\cdots$", fs=11, color=GRAY, ha="left")
+
+    save(fig, "03/lstm-unroll.png")
 
 
 # ---------------------------------------------------------------- 04 加性注意力
@@ -515,6 +596,7 @@ def fig_07_multihead():
 FIGS = {
     "01": fig_01_ngram,
     "03": fig_03_rnn,
+    "03b": fig_03_lstm,
     "04": fig_04_additive_attention,
     "05": fig_05_qkv,
     "07": fig_07_multihead,
