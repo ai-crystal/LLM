@@ -17,7 +17,7 @@
 | 册 | 讲什么 | 章数 | 页数 | 在线阅读 | PDF |
 |---|---|---|---|---|---|
 | 入门篇：大模型是什么 | 零公式，从一句话的续写下半截讲到一张账单 | 10 | 93 | [读](books/v1-intro/README.md) | [下](output/v1-intro.pdf) |
-| 基础篇：从预测下一个词到 Transformer | 语言模型、嵌入、RNN、注意力、Transformer、位置编码、参数账 | 11 | 155 | [读](books/v2-basics/README.md) | [下](output/v2-basics.pdf) |
+| 基础篇：从预测下一个词到 Transformer | 语言模型、嵌入、RNN、注意力、Transformer、位置编码、参数账 | 11 | 157 | [读](books/v2-basics/README.md) | [下](output/v2-basics.pdf) |
 | 预训练篇：数据、词表与规模 | 语料与清洗、分词器、缩放定律、训练系统、稳定性 | 12 | 147 | [读](books/v3-pretrain/README.md) | [下](output/v3-pretrain.pdf) |
 | 架构改造篇：注意力、归一化与专家网络 | KV 缓存、MQA/GQA/MLA、FlashAttention、稀疏与 SSM、MoE、长上下文 | 9 | 113 | [读](books/v4-architecture/README.md) | [下](output/v4-architecture.pdf) |
 
