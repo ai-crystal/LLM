@@ -44,8 +44,12 @@ def load(book: Path) -> tuple[dict, dict]:
 
 
 def books() -> list[Path]:
-    return sorted(p for p in BOOKS.iterdir()
-                  if p.is_dir() and (p / "book.json").exists())
+    """按卷号自然排序（v1、v2、…、v10），不要按字符串排。"""
+    def key(p: Path):
+        m = re.match(r"v(\d+)", p.name)
+        return (int(m.group(1)) if m else 999, p.name)
+    return sorted((p for p in BOOKS.iterdir()
+                   if p.is_dir() and (p / "book.json").exists()), key=key)
 
 
 def chapter_no(rel: str) -> str:
