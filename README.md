@@ -112,6 +112,46 @@
 - [第8章　防御栈：没有单层是可靠的](books/v6-safety/chapters/ch08.md)
 - [第9章　安全评测与治理：怎么知道它到底有多难破](books/v6-safety/chapters/ch09.md)
 - [第10章　新攻击面：多模态、语音与代码 Agent](books/v6-safety/chapters/ch10.md)
+| 多模态与生成篇：视觉、语音与扩散 | 视觉 token、图文对齐、语音识别与合成、视频、扩散与流模型 | 9 | 36 | [读](books/v9-multimodal/README.md) | [下](output/v9-multimodal.pdf) |
+| 训练系统篇：并行、显存与通信 | 四种并行、ZeRO、重计算、通信重叠、低精度、故障恢复 | 8 | 31 | [读](books/v10-systems/README.md) | [下](output/v10-systems.pdf) |
+| 可解释性与评测篇：看得懂与测得准 | 探针与方向、稀疏自编码器、电路分析、归因、污染与判定模型、私有评测 | 8 | 31 | [读](books/v11-interpret/README.md) | [下](output/v11-interpret.pdf) |
+
+### 多模态与生成篇：视觉、语音与扩散
+
+- [前言](books/v9-multimodal/front/preface.md)
+- [第1章　图像怎么变成 token](books/v9-multimodal/chapters/ch01.md)
+- [第2章　视觉编码器与图文对齐](books/v9-multimodal/chapters/ch02.md)
+- [第3章　多模态模型怎么训](books/v9-multimodal/chapters/ch03.md)
+- [第4章　语音识别：从波形到文字](books/v9-multimodal/chapters/ch04.md)
+- [第5章　语音合成：让模型说话](books/v9-multimodal/chapters/ch05.md)
+- [第6章　视频：把图像的成本乘以时间](books/v9-multimodal/chapters/ch06.md)
+- [第7章　扩散模型：从噪声里画出图](books/v9-multimodal/chapters/ch07.md)
+- [第8章　流匹配与生成式 Transformer](books/v9-multimodal/chapters/ch08.md)
+- [第9章　理解与生成：要不要放进一个模型](books/v9-multimodal/chapters/ch09.md)
+
+### 训练系统篇：并行、显存与通信
+
+- [前言](books/v10-systems/front/preface.md)
+- [第1章　并行的四种切法](books/v10-systems/chapters/ch01.md)
+- [第2章　数据并行与 ZeRO](books/v10-systems/chapters/ch02.md)
+- [第3章　张量并行与序列并行](books/v10-systems/chapters/ch03.md)
+- [第4章　流水线并行与专家并行](books/v10-systems/chapters/ch04.md)
+- [第5章　显存账：权重、状态与激活](books/v10-systems/chapters/ch05.md)
+- [第6章　通信与重叠](books/v10-systems/chapters/ch06.md)
+- [第7章　精度：从 FP32 到 FP8](books/v10-systems/chapters/ch07.md)
+- [第8章　故障、检查点与弹性](books/v10-systems/chapters/ch08.md)
+
+### 可解释性与评测篇：看得懂与测得准
+
+- [前言](books/v11-interpret/front/preface.md)
+- [第1章　看不懂的时候，能做什么](books/v11-interpret/chapters/ch01.md)
+- [第2章　探针与表示方向](books/v11-interpret/chapters/ch02.md)
+- [第3章　稀疏自编码器：把激活拆开](books/v11-interpret/chapters/ch03.md)
+- [第4章　注意力头与电路](books/v11-interpret/chapters/ch04.md)
+- [第5章　归因与 logit lens](books/v11-interpret/chapters/ch05.md)
+- [第6章　评测：污染与判定模型](books/v11-interpret/chapters/ch06.md)
+- [第7章　竞技场、私有评测与线上实验](books/v11-interpret/chapters/ch07.md)
+- [第8章　可解释性在安全与对齐里的用处](books/v11-interpret/chapters/ch08.md)
 
 ### 附录
 
