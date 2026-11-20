@@ -225,7 +225,7 @@ def fig_training_stages() -> None:
     ax.text(9.85, 0.98, "算力投入：2 > 3 > 1 > 4", ha="right", va="center",
             fontsize=TINY - 1.4, color=st.GRAY)
 
-    save_png(fig, "03/training-stages.png")
+    save_png(fig, "05/training-stages.png")
 
 
 # ---------------------------------------------------------------- 图 3 成本拆解
@@ -282,7 +282,7 @@ def fig_cost_breakdown() -> None:
     ax2.set_title("四根等高：每步都要重读全量权重，与上下文无关", fontsize=SMALL - 1.0,
                   color=st.NAVY, pad=6, loc="left")
 
-    save_png(fig, "06/cost-breakdown.png")
+    save_png(fig, "16/cost-breakdown.png")
 
 
 # ---------------------------------------------------------------- 二维定位图
@@ -373,7 +373,7 @@ def fig_usage_modes() -> None:
     label_at(ax, 2.40, 6.90, 2.60, 8.25, "RAG", "先查资料再回答", st.TEAL)
     label_at(ax, 4.35, 9.30, 6.85, 9.15, "智能体", "调工具、多轮执行", st.RED)
 
-    save_png(fig, "07/usage-modes.png")
+    save_png(fig, "15/usage-modes.png")
 
 
 # ---------------------------------------------------------------- 图 5 评测版图
@@ -402,7 +402,244 @@ def fig_eval_landscape() -> None:
     label_at(ax, 4.20, 3.30, 2.65, 3.35, "竞技场", "人投票，偏爱长与好看", st.GOLD)
     label_at(ax, 8.40, 1.55, 8.40, 3.15, "私有评测", "自家数据，无法复现", st.RED)
 
-    save_png(fig, "08/eval-landscape.png")
+    save_png(fig, "18/eval-landscape.png")
+
+
+# ================================================================ 新增图
+# 下面四张按 5.2 in 宽（≈132 mm）画，排版时基本原大，字号即印刷字号。
+W5 = 5.2
+FS5 = 8.6
+FS5S = 7.3
+
+
+def canvas5(h_in: float):
+    """固定 5.2 in 宽的满幅画布，1 数据单位 = 0.5 in。"""
+    st.setup()
+    fig = plt.figure(figsize=(W5, h_in))
+    fig.patch.set_facecolor("white")
+    ax = fig.add_axes([0, 0, 1, 1])
+    ax.set_xlim(0, 2 * W5)
+    ax.set_ylim(0, 2 * h_in)
+    ax.set_aspect("equal")
+    ax.axis("off")
+    ax.grid(False)
+    return fig, ax
+
+
+def txt5(ax, x, y, s, fs=FS5, color=st.INK, ha="center", va="center",
+         weight="normal", z=8):
+    return ax.text(x, y, s, fontsize=fs, color=color, ha=ha, va=va,
+                   weight=weight, zorder=z, linespacing=1.42)
+
+
+def note5(ax, x, y, s, fs=FS5S, color=st.GRAY, ha="center", va="center", **kw):
+    return ax.text(x, y, s, fontsize=fs, color=color, ha=ha, va=va,
+                   zorder=8, linespacing=1.45, **kw)
+
+
+def save5(fig, rel: str) -> None:
+    out = IMGROOT / rel
+    out.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out, dpi=288, facecolor="white")
+    plt.close(fig)
+    from PIL import Image
+    with Image.open(out) as im:
+        rgb = im.convert("RGB")
+    rgb.save(out, dpi=(288, 288), optimize=True)
+    print(f"  saved {rel}  {rgb.width}x{rgb.height} px")
+
+
+# ---------------------------------------------------------------- 图 6 想多久
+def fig_thinking_budget() -> None:
+    """读图顺序：
+    ① 上栏蓝线：正确率随思考长度的变化，前段陡、后段平；
+    ② 下栏金柱：成本随思考长度线性上涨；
+    ③ 中间的竖虚线是“收益已经不多、钱还在涨”的位置。
+    """
+    st.setup()
+    fig = plt.figure(figsize=(W5, 3.15))
+    gs = fig.add_gridspec(2, 1, height_ratios=[2.5, 1.0], hspace=0.16)
+    ax1 = fig.add_subplot(gs[0])
+    ax2 = fig.add_subplot(gs[1], sharex=ax1)
+    fig.subplots_adjust(left=0.085, right=0.975, top=0.965, bottom=0.135)
+
+    xpos = np.arange(4)
+    labels = ["0.5K", "2K", "8K", "32K"]
+    acc = [43, 61, 70, 72]
+    cost = [1, 4, 16, 64]
+
+    ax1.plot(xpos, acc, color=st.NAVY, lw=1.4, marker="o", ms=4.2,
+             mfc="white", mew=1.1, zorder=4)
+    ax1.set_ylim(30, 84)
+    ax1.set_yticks([])
+    ax1.set_ylabel("同批题上的正确率", fontsize=FS5S + 0.6, color=st.INK,
+                   labelpad=4)
+    ax1.tick_params(axis="both", which="both", labelbottom=False,
+                    length=0)
+    ax1.grid(axis="y", color=st.LGRAY, lw=0.45, alpha=0.7)
+    ax1.grid(axis="x", visible=False)
+    ax1.spines["left"].set_visible(False)
+
+    ax1.annotate("想得越多，错得越少", xy=(0.34, 50.0), xytext=(1.30, 36.0),
+                 fontsize=FS5S, color=st.NAVY,
+                 arrowprops=dict(arrowstyle="-|>", lw=0.7, color=st.NAVY_L))
+    ax1.annotate("多数题的收益在前一段收完", xy=(1.92, 69.2),
+                 xytext=(0.55, 79.5), fontsize=FS5S, color=st.GRAY,
+                 arrowprops=dict(arrowstyle="-|>", lw=0.6, color=st.LGRAY))
+    ax1.annotate("再翻四倍，只多一两点", xy=(2.94, 71.7), xytext=(2.05, 58.0),
+                 fontsize=FS5S, color=st.GRAY,
+                 arrowprops=dict(arrowstyle="-|>", lw=0.6, color=st.LGRAY))
+
+    for a in (ax1, ax2):
+        a.axvline(1.72, color=st.GOLD, lw=0.7, ls=(0, (3, 2)), zorder=1)
+
+    ax2.bar(xpos, cost, 0.38, color=st.GOLD_L, edgecolor=st.GOLD, lw=0.7,
+            zorder=3)
+    for x, v in zip(xpos, cost):
+        ax2.text(x, v + 2.4, f"{v}×", ha="center", va="bottom",
+                 fontsize=FS5S, color=st.INK, zorder=5)
+    ax2.set_ylim(0, 82)
+    ax2.set_yticks([])
+    ax2.set_ylabel("单次成本", fontsize=FS5S + 0.6, color=st.INK, labelpad=10)
+    ax2.set_xticks(xpos)
+    ax2.set_xticklabels(labels, fontsize=FS5S)
+    ax2.set_xlabel("思考长度 / token", fontsize=FS5S + 0.6, color=st.INK)
+    ax2.grid(axis="x", visible=False)
+    ax2.grid(axis="y", visible=False)
+    ax2.tick_params(axis="both", which="both", length=0)
+    ax2.spines["left"].set_visible(False)
+
+    save5(fig, "07/thinking-budget.png")
+
+
+# ---------------------------------------------------------------- 图 7 多模态 token 成本
+def fig_multimodal_tokens() -> None:
+    """读图顺序：
+    ① 四根横柱，同一把尺子（token 数）；
+    ② 文字那根最短，视频那根最长；
+    ③ 柱右的数字是量级估计，不是精确值。
+    """
+    st.setup()
+    fig, ax = plt.subplots(figsize=(W5, 2.78))
+    fig.subplots_adjust(left=0.245, right=0.955, top=0.955, bottom=0.175)
+
+    names = ["一段文字\n约 1000 字", "一张图\n1024×1024", "一分钟语音\n16 kHz",
+             "一分钟视频\n每秒 1 帧"]
+    vals = [1.5, 1.2, 3.0, 60.0]
+    colors = [st.NAVY_XL, st.NAVY_L, st.TEAL, st.GOLD]
+    ypos = np.arange(len(names))[::-1]
+
+    ax.barh(ypos, vals, 0.52, color=colors, edgecolor=[st.NAVY_L, st.NAVY_L,
+                                                       st.TEAL, st.GOLD],
+            lw=0.7, zorder=3)
+    for y, v in zip(ypos, vals):
+        ax.text(v + 1.5, y, f"≈{v:g}K", va="center", ha="left",
+                fontsize=FS5S + 0.4, color=st.INK, zorder=5)
+
+    ax.set_yticks(ypos)
+    ax.set_yticklabels(names, fontsize=FS5S)
+    ax.set_xlim(0, 74)
+    ax.set_xticks([0, 20, 40, 60])
+    ax.set_xticklabels(["0", "20K", "40K", "60K"], fontsize=FS5S)
+    ax.set_xlabel("一次送进模型的 token 数", fontsize=FS5S + 0.6, color=st.INK)
+    ax.grid(axis="y", visible=False)
+    ax.tick_params(axis="both", length=0)
+    ax.spines["left"].set_visible(False)
+
+    ax.text(63.5, 3.34, "按每秒 1 帧、每帧约 1K 估；\n每秒 30 帧就是两百万量级",
+            ha="right", va="bottom", fontsize=FS5S - 0.4, color=st.GRAY,
+            linespacing=1.5, zorder=5)
+
+    save5(fig, "10/multimodal-tokens.png")
+
+
+# ---------------------------------------------------------------- 图 8 智能体循环
+def fig_agent_loop() -> None:
+    """读图顺序：
+    ① 中间三个方框转一圈：看状态 → 调工具 → 观察 → 再来一轮；
+    ② 右上出口是“判断能答了”；
+    ③ 左侧三条是护栏，缺一条就会出事故。
+    """
+    fig, ax = canvas5(3.05)
+
+    bw, bh = 3.05, 1.02
+    cx0, cy0 = 5.05, 4.10
+    boxes = [
+        (cx0, cy0, "模型看一眼当前状态", "目标 + 历史 + 工具结果", st.NAVY),
+        (cx0 + 3.55, cy0 - 1.55, "选一个工具", "参数由它生成", st.GOLD),
+        (cx0, cy0 - 3.10, "观察返回结果", "写回上下文，算新状态", st.TEAL),
+    ]
+    for (cx, cy, head, sub, color) in boxes:
+        st.box(ax, cx - bw / 2, cy - bh / 2, bw, bh, "", fc="#FFFFFF",
+               ec=color, lw=0.9, zorder=4)
+        txt5(ax, cx, cy + 0.17, head, fs=FS5, color=st.INK, weight="bold")
+        note5(ax, cx, cy - 0.24, sub, fs=FS5S - 0.5)
+
+    st.arrow(ax, (cx0 + bw / 2 + 0.05, cy0 - 0.14),
+             (cx0 + 3.55 - bw / 2 - 0.05, cy0 - 1.02), rad=-0.14)
+    st.arrow(ax, (cx0 + 3.55 - bw / 2 - 0.05, cy0 - 2.06),
+             (cx0 + bw / 2 + 0.05, cy0 - 2.88), rad=-0.14)
+    st.arrow(ax, (cx0 - bw / 2 - 0.05, cy0 - 2.88),
+             (cx0 - bw / 2 - 0.05, cy0 - 0.16), rad=0.0)
+    note5(ax, cx0 - 1.80, cy0 - 1.55, "再来\n一轮", fs=FS5S - 0.8)
+
+    st.box(ax, 8.45, 4.80, 1.95, 0.90, "", fc=st.BG, ec=st.NAVY_L, lw=0.8,
+           zorder=4)
+    txt5(ax, 9.42, 5.25, "给出答复", fs=FS5 - 0.4)
+    note5(ax, 9.42, 4.96, "或转人工", fs=FS5S - 0.5)
+    st.arrow(ax, (cx0 + 0.55, cy0 + bh / 2 + 0.04), (8.40, 5.24), rad=-0.12)
+    note5(ax, 7.78, 5.62, "判断能答了", fs=FS5S - 0.6)
+
+    guard = ["步数上限：超过就停", "工具白名单：只开必要的", "不可逆动作要人确认"]
+    for i, g in enumerate(guard):
+        y = 2.75 - i * 0.50
+        ax.plot([0.32], [y], marker="s", ms=2.8, color=st.RED, zorder=5)
+        note5(ax, 0.52, y, g, fs=FS5S - 0.7, ha="left", color=st.GRAY)
+
+    save5(fig, "12/agent-loop.png")
+
+
+# ---------------------------------------------------------------- 图 9 两阶段
+def fig_two_stage() -> None:
+    """读图顺序：
+    ① 横轴是时间，红虚线是“第一个字出现”的时刻；
+    ② 左边宽块是预填充：整段输入一次算完，算力打满；
+    ③ 右边一串小方块是解码：每步只出一个字，卡在读权重；
+    ④ 下方两条标注写的是各自的瓶颈。
+    """
+    fig, ax = canvas5(2.30)
+
+    x0, y0, h = 0.55, 1.86, 1.10
+    st.box(ax, x0, y0, 2.62, h, "", fc=st.NAVY_XL, ec=st.NAVY_L, lw=0.9)
+    txt5(ax, x0 + 1.31, y0 + 0.70, "预填充", fs=FS5 + 0.4, weight="bold")
+    note5(ax, x0 + 1.31, y0 + 0.24, "整段输入并行算一遍", fs=FS5S - 0.5)
+
+    xd = x0 + 2.86
+    for i in range(7):
+        st.box(ax, xd + i * 0.40, y0 + 0.30, 0.30, 0.50, "", fc=st.GOLD_L,
+               ec=st.GOLD, lw=0.7, rounded=0.04)
+    txt5(ax, xd + 1.42, y0 + 1.02, "解码：一步一个字", fs=FS5, weight="bold")
+    note5(ax, xd + 1.42, y0 - 0.02, "每步都要把全部权重读一遍", fs=FS5S - 0.5)
+
+    st.arrow(ax, (x0 - 0.14, y0 - 0.40), (10.05, y0 - 0.40), color=st.GRAY, lw=0.8)
+    note5(ax, 9.95, y0 - 0.60, "时间", fs=FS5S - 0.6, ha="right")
+
+    ax.plot([x0 + 2.72, x0 + 2.72], [y0 - 0.34, y0 + h + 0.20],
+            color=st.RED, lw=0.9, ls=(0, (3, 2)), zorder=3)
+    note5(ax, x0 + 2.82, y0 + h + 0.34, "第一个字", fs=FS5S - 0.4,
+          ha="left", color=st.RED)
+
+    bracket(ax, x0, x0 + 2.62, y0 + h + 0.10,
+            "首字延迟：随输入长度线性增长", fs=FS5S - 0.5, below=False)
+    bracket(ax, x0 + 2.95, 9.90, y0 + h + 0.10,
+            "出字间隔：基本是常数", fs=FS5S - 0.5, below=False, color=st.GOLD)
+
+    ax.text(0.55, 0.62, "■", color=st.NAVY, fontsize=FS5S - 1.0, va="center")
+    note5(ax, 0.94, 0.62, "计算单元吃满，输入越长越久", fs=FS5S - 0.6, ha="left")
+    ax.text(5.15, 0.62, "■", color=st.GOLD, fontsize=FS5S - 1.0, va="center")
+    note5(ax, 5.54, 0.62, "计算单元大部分时间在等数据", fs=FS5S - 0.6, ha="left")
+
+    save5(fig, "17/two-stage.png")
 
 
 if __name__ == "__main__":
@@ -411,4 +648,8 @@ if __name__ == "__main__":
     fig_cost_breakdown()
     fig_usage_modes()
     fig_eval_landscape()
+    fig_thinking_budget()
+    fig_multimodal_tokens()
+    fig_agent_loop()
+    fig_two_stage()
     print("done.")

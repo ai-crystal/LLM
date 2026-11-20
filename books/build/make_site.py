@@ -26,6 +26,13 @@ ROOT = Path(__file__).resolve().parents[2]
 BOOKS = ROOT / "books"
 
 
+def label(book: Path, rel: str) -> str:
+    """前言这类没有标题的文件用固定名，其余取正文第一个标题。"""
+    if rel.endswith("preface.md"):
+        return "前言"
+    return first_heading(book / rel)
+
+
 def first_heading(md: Path) -> str:
     """取正文第一个标题（优先二级，没有就用一级）。"""
     lines = md.read_text(encoding="utf-8").splitlines()
@@ -52,6 +59,11 @@ def books() -> list[Path]:
                    if p.is_dir() and (p / "book.json").exists()), key=key)
 
 
+def is_part(rel: str) -> bool:
+    """structure.json 里的部扉页（front/partN.md）只做分组标题，不编号。"""
+    return rel.startswith("front/part")
+
+
 def chapter_no(rel: str) -> str:
     m = re.search(r"ch(\d+)", rel)
     return str(int(m.group(1))) if m else ""
@@ -69,10 +81,13 @@ def write_book(book: Path) -> None:
             "",
             f"- **{meta['volume']}**"]
     for rel in front:
-        side.append(f"  - [{first_heading(book / rel)}](/books/{name}/{rel})")
+        side.append(f"  - [{label(book, rel)}](/books/{name}/{rel})")
     for rel in chaps:
-        side.append(f"  - [第{chapter_no(rel)}章 {first_heading(book / rel)}]"
-                    f"(/books/{name}/{rel})")
+        if is_part(rel):
+            side.append(f"  - **{first_heading(book / rel)}**")
+        else:
+            side.append(f"  - [第{chapter_no(rel)}章 {first_heading(book / rel)}]"
+                        f"(/books/{name}/{rel})")
     if order.get("appendix"):
         side += ["", "- **附录**"]
         for rel in order["appendix"]:
@@ -83,12 +98,18 @@ def write_book(book: Path) -> None:
     # ---------- 该册首页（GitHub 也能读，写同级相对路径） ----------
     rows = ["| 章 | 标题 |", "|---|---|"]
     for rel in chaps:
-        rows.append(f"| {chapter_no(rel)} | "
-                    f"[{first_heading(book / rel)}]({rel}) |")
+        if is_part(rel):
+            rows.append(f"| | **{first_heading(book / rel)}** |")
+        else:
+            rows.append(f"| {chapter_no(rel)} | "
+                        f"[{first_heading(book / rel)}]({rel}) |")
+    n_chap = len([r for r in chaps if not is_part(r)])
+    n_part = len([r for r in chaps if is_part(r)])
+    scope = f"共 {n_chap} 章" + (f"，分 {n_part} 部分" if n_part else "")
     readme = (
         f"# {meta['volume']}：{meta['subtitle']}\n\n"
         f"> {meta['series']} · {meta['author']} · {meta['year']}\n\n"
-        f"共 {len(chaps)} 章，[下载本册 PDF](../../output/{meta['pdf']})。\n\n"
+        f"{scope}，[下载本册 PDF](../../output/{meta['pdf']})。\n\n"
         "## 目录\n\n"
         + "\n".join(rows) + "\n\n"
         "[返回系列首页](../../README.md)\n"

@@ -2,21 +2,37 @@
 
 > 大模型技术全景 · Dr. Dezeming · 2026
 
-共 10 章，[下载本册 PDF](../../output/v1-intro.pdf)。
+共 21 章，分 5 部分，[下载本册 PDF](../../output/v1-intro.pdf)。
 
 ## 目录
 
 | 章 | 标题 |
 |---|---|
+| | **第1部　它是什么** |
 | 1 | [一句话的下半截](chapters/ch01.md) |
 | 2 | [一次生成的全过程](chapters/ch02.md) |
-| 3 | [模型是怎么炼成的](chapters/ch03.md) |
-| 4 | [它会什么](chapters/ch04.md) |
-| 5 | [它不会什么](chapters/ch05.md) |
-| 6 | [一张账单：参数、显存、token 与价格](chapters/ch06.md) |
-| 7 | [三种用法：提示、微调、检索与智能体](chapters/ch07.md) |
-| 8 | [怎么判断一个模型好不好](chapters/ch08.md) |
-| 9 | [风险与边界：版权、隐私、安全、对齐](chapters/ch09.md) |
-| 10 | [这个系列怎么读：十一个方向与三条路线](chapters/ch10.md) |
+| 3 | [它为什么像懂了](chapters/ch03.md) |
+| 4 | [它读过什么](chapters/ch04.md) |
+| | **第2部　怎么训出来** |
+| 5 | [一场几千张卡的马拉松](chapters/ch05.md) |
+| 6 | [怎么变听话](chapters/ch06.md) |
+| 7 | [会思考的模型](chapters/ch07.md) |
+| 8 | [变小与变便宜](chapters/ch08.md) |
+| | **第3部　它能干什么** |
+| 9 | [读长文与记忆](chapters/ch09.md) |
+| 10 | [看图、听声、说话](chapters/ch10.md) |
+| 11 | [画图与做视频](chapters/ch11.md) |
+| 12 | [会动手](chapters/ch12.md) |
+| 13 | [会写代码](chapters/ch13.md) |
+| 14 | [它会什么、不会什么](chapters/ch14.md) |
+| | **第4部　怎么用、怎么算账** |
+| 15 | [三种用法](chapters/ch15.md) |
+| 16 | [一张账单](chapters/ch16.md) |
+| 17 | [跑起来才知道](chapters/ch17.md) |
+| 18 | [怎么判断一个模型好不好](chapters/ch18.md) |
+| 19 | [模型从哪来](chapters/ch19.md) |
+| | **第5部　边界与地图** |
+| 20 | [风险与边界](chapters/ch20.md) |
+| 21 | [这个系列怎么读](chapters/ch21.md) |
 
 [返回系列首页](../../README.md)

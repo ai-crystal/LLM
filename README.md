@@ -16,7 +16,7 @@
 
 | 册 | 讲什么 | 章数 | 页数 | 在线阅读 | PDF |
 |---|---|---|---|---|---|
-| 入门篇：大模型是什么 | 零公式，从一句话的续写下半截讲到一张账单 | 10 | 91 | [读](books/v1-intro/README.md) | [下](output/v1-intro.pdf) |
+| 入门篇：大模型是什么 | 零公式纵览全貌：一次生成、怎么训出来、能干什么、钱花在哪、风险在哪 | 21 | 169 | [读](books/v1-intro/README.md) | [下](output/v1-intro.pdf) |
 | 基础篇：从预测下一个词到 Transformer | 语言模型、嵌入、RNN、注意力、Transformer、位置编码、参数账 | 11 | 157 | [读](books/v2-basics/README.md) | [下](output/v2-basics.pdf) |
 | 预训练篇：数据、词表与规模 | 语料与清洗、分词器、缩放定律、训练系统、稳定性 | 12 | 147 | [读](books/v3-pretrain/README.md) | [下](output/v3-pretrain.pdf) |
 | 架构改造篇：注意力、归一化与专家网络 | KV 缓存、MQA/GQA/MLA、FlashAttention、稀疏与 SSM、MoE、长上下文 | 9 | 113 | [读](books/v4-architecture/README.md) | [下](output/v4-architecture.pdf) |
@@ -33,16 +33,32 @@
 ### 入门篇：大模型是什么
 
 - [前言](books/v1-intro/front/preface.md)
+- **第1部　它是什么**
 - [第1章　一句话的下半截](books/v1-intro/chapters/ch01.md)
 - [第2章　一次生成的全过程](books/v1-intro/chapters/ch02.md)
-- [第3章　模型是怎么炼成的](books/v1-intro/chapters/ch03.md)
-- [第4章　它会什么](books/v1-intro/chapters/ch04.md)
-- [第5章　它不会什么](books/v1-intro/chapters/ch05.md)
-- [第6章　一张账单：参数、显存、token 与价格](books/v1-intro/chapters/ch06.md)
-- [第7章　三种用法：提示、微调、检索与智能体](books/v1-intro/chapters/ch07.md)
-- [第8章　怎么判断一个模型好不好](books/v1-intro/chapters/ch08.md)
-- [第9章　风险与边界：版权、隐私、安全、对齐](books/v1-intro/chapters/ch09.md)
-- [第10章　这个系列怎么读：十一个方向与三条路线](books/v1-intro/chapters/ch10.md)
+- [第3章　它为什么像懂了](books/v1-intro/chapters/ch03.md)
+- [第4章　它读过什么](books/v1-intro/chapters/ch04.md)
+- **第2部　怎么训出来**
+- [第5章　一场几千张卡的马拉松](books/v1-intro/chapters/ch05.md)
+- [第6章　怎么变听话](books/v1-intro/chapters/ch06.md)
+- [第7章　会思考的模型](books/v1-intro/chapters/ch07.md)
+- [第8章　变小与变便宜](books/v1-intro/chapters/ch08.md)
+- **第3部　它能干什么**
+- [第9章　读长文与记忆](books/v1-intro/chapters/ch09.md)
+- [第10章　看图、听声、说话](books/v1-intro/chapters/ch10.md)
+- [第11章　画图与做视频](books/v1-intro/chapters/ch11.md)
+- [第12章　会动手](books/v1-intro/chapters/ch12.md)
+- [第13章　会写代码](books/v1-intro/chapters/ch13.md)
+- [第14章　它会什么、不会什么](books/v1-intro/chapters/ch14.md)
+- **第4部　怎么用、怎么算账**
+- [第15章　三种用法](books/v1-intro/chapters/ch15.md)
+- [第16章　一张账单](books/v1-intro/chapters/ch16.md)
+- [第17章　跑起来才知道](books/v1-intro/chapters/ch17.md)
+- [第18章　怎么判断一个模型好不好](books/v1-intro/chapters/ch18.md)
+- [第19章　模型从哪来](books/v1-intro/chapters/ch19.md)
+- **第5部　边界与地图**
+- [第20章　风险与边界](books/v1-intro/chapters/ch20.md)
+- [第21章　这个系列怎么读](books/v1-intro/chapters/ch21.md)
 
 ### 基础篇：从预测下一个词到 Transformer
 
