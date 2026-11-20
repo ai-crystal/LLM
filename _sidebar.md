@@ -6,6 +6,7 @@
   - [预训练篇：数据、词表与规模](/books/v3-pretrain/README.md)
   - [架构改造篇：注意力、归一化与专家网络](/books/v4-architecture/README.md)
   - [对齐篇：从 SFT 到 Agent 后训练](/books/v5-alignment/README.md)
+  - [安全与攻破篇：红队、越狱、投毒与防御](/books/v6-safety/README.md)
 
 - **下载**
   - [入门篇 PDF](/output/v1-intro.pdf)
@@ -13,3 +14,4 @@
   - [预训练篇 PDF](/output/v3-pretrain.pdf)
   - [架构改造篇 PDF](/output/v4-architecture.pdf)
   - [对齐篇 PDF](/output/v5-alignment.pdf)
+  - [安全与攻破篇 PDF](/output/v6-safety.pdf)

@@ -20,7 +20,8 @@
 | 基础篇：从预测下一个词到 Transformer | 语言模型、嵌入、RNN、注意力、Transformer、位置编码、参数账 | 11 | 157 | [读](books/v2-basics/README.md) | [下](output/v2-basics.pdf) |
 | 预训练篇：数据、词表与规模 | 语料与清洗、分词器、缩放定律、训练系统、稳定性 | 12 | 147 | [读](books/v3-pretrain/README.md) | [下](output/v3-pretrain.pdf) |
 | 架构改造篇：注意力、归一化与专家网络 | KV 缓存、MQA/GQA/MLA、FlashAttention、稀疏与 SSM、MoE、长上下文 | 9 | 113 | [读](books/v4-architecture/README.md) | [下](output/v4-architecture.pdf) |
-| 对齐篇：从 SFT 到 Agent 后训练 | 指令微调、奖励模型、PPO、DPO 家族、可验证奖励、过程奖励与搜索、蒸馏式对齐、Agent 后训练 | 12 | 68 | [读](books/v5-alignment/README.md) | [下](output/v5-alignment.pdf) |
+| 对齐篇：从 SFT 到 Agent 后训练 | 指令微调、奖励模型、PPO、DPO 家族、可验证奖励、过程奖励与搜索、蒸馏式对齐、Agent 后训练 | 12 | 70 | [读](books/v5-alignment/README.md) | [下](output/v5-alignment.pdf) |
+| 安全与攻破篇：红队、越狱、投毒与防御 | 威胁模型、越狱两类、提示注入、微调攻破、数据投毒、窃取与隐私、防御栈、安全评测 | 9 | 50 | [读](books/v6-safety/README.md) | [下](output/v6-safety.pdf) |
 
 ## 目录
 
@@ -97,6 +98,19 @@
 - [第10章　Agent 后训练（一）：多步任务长什么样](books/v5-alignment/chapters/ch10.md)
 - [第11章　Agent 后训练（二）：在环境里练](books/v5-alignment/chapters/ch11.md)
 - [第12章　评测、对齐税与边界](books/v5-alignment/chapters/ch12.md)
+
+### 安全与攻破篇：红队、越狱、投毒与防御
+
+- [前言](books/v6-safety/front/preface.md)
+- [第1章　威胁模型：先想清楚谁会怎么打](books/v6-safety/chapters/ch01.md)
+- [第2章　越狱（一）：靠人写出来的绕过](books/v6-safety/chapters/ch02.md)
+- [第3章　越狱（二）：让算法去找](books/v6-safety/chapters/ch03.md)
+- [第4章　提示注入：把指令藏在数据里](books/v6-safety/chapters/ch04.md)
+- [第5章　微调攻破：几十条数据拆掉安全对齐](books/v6-safety/chapters/ch05.md)
+- [第6章　数据投毒：在训练集里埋一颗雷](books/v6-safety/chapters/ch06.md)
+- [第7章　模型窃取与隐私：把学到的东西挖出来](books/v6-safety/chapters/ch07.md)
+- [第8章　防御栈：没有单层是可靠的](books/v6-safety/chapters/ch08.md)
+- [第9章　安全评测与治理：怎么知道它到底有多难破](books/v6-safety/chapters/ch09.md)
 
 ### 附录
 
