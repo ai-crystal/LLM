@@ -20,8 +20,13 @@
 | 基础篇：从预测下一个词到 Transformer | 语言模型、嵌入、RNN、注意力、Transformer、位置编码、参数账 | 11 | 157 | [读](books/v2-basics/README.md) | [下](output/v2-basics.pdf) |
 | 预训练篇：数据、词表与规模 | 语料与清洗、分词器、缩放定律、训练系统、稳定性 | 12 | 147 | [读](books/v3-pretrain/README.md) | [下](output/v3-pretrain.pdf) |
 | 架构改造篇：注意力、归一化与专家网络 | KV 缓存、MQA/GQA/MLA、FlashAttention、稀疏与 SSM、MoE、长上下文 | 9 | 113 | [读](books/v4-architecture/README.md) | [下](output/v4-architecture.pdf) |
-| 对齐篇：从 SFT 到 Agent 后训练 | 指令微调、奖励模型、PPO、DPO 家族、可验证奖励、过程奖励与搜索、蒸馏式对齐、Agent 后训练 | 12 | 73 | [读](books/v5-alignment/README.md) | [下](output/v5-alignment.pdf) |
-| 安全与攻破篇：红队、越狱、投毒与防御 | 威胁模型、越狱两类、提示注入、微调攻破、数据投毒、窃取与隐私、防御栈、安全评测 | 9 | 50 | [读](books/v6-safety/README.md) | [下](output/v6-safety.pdf) |
+| 对齐篇：从 SFT 到 Agent 后训练 | 指令微调、奖励模型、PPO、DPO 家族、可验证奖励、过程奖励与搜索、Agent 后训练 | 12 | 138 | [读](books/v5-alignment/README.md) | [下](output/v5-alignment.pdf) |
+| 安全与攻破篇：红队、越狱、投毒与防御 | 威胁模型、越狱两类、提示注入、微调攻破、数据投毒、窃取与隐私、防御栈、评测 | 10 | 106 | [读](books/v6-safety/README.md) | [下](output/v6-safety.pdf) |
+| 推理与部署篇：引擎、压缩与投机解码 | 两个阶段、KV 缓存、批处理、前缀复用、量化、剪枝蒸馏、投机解码、容量规划 | 10 | 125 | [读](books/v7-inference/README.md) | [下](output/v7-inference.pdf) |
+| 应用与 Agent 系统篇：检索、工具与智能体 | 切块与索引、混合检索与重排、上下文组装、检索评测、工具调用、Agent 循环、记忆 | 10 | 124 | [读](books/v8-apps/README.md) | [下](output/v8-apps.pdf) |
+| 多模态与生成篇：视觉、语音与扩散 | 视觉 token、图文对齐、语音识别与合成、视频、扩散与流匹配、统一模型 | 9 | 108 | [读](books/v9-multimodal/README.md) | [下](output/v9-multimodal.pdf) |
+| 训练系统篇：并行、显存与通信 | 四种并行、ZeRO、流水线气泡、显存六块账、通信重叠、低精度、故障恢复 | 8 | 108 | [读](books/v10-systems/README.md) | [下](output/v10-systems.pdf) |
+| 可解释性与评测篇：看得懂与测得准 | 探针与方向、稀疏自编码器、电路分析、logit lens、污染与判定模型、私有评测 | 8 | 106 | [读](books/v11-interpret/README.md) | [下](output/v11-interpret.pdf) |
 
 ## 目录
 
@@ -112,9 +117,6 @@
 - [第8章　防御栈：没有单层是可靠的](books/v6-safety/chapters/ch08.md)
 - [第9章　安全评测与治理：怎么知道它到底有多难破](books/v6-safety/chapters/ch09.md)
 - [第10章　新攻击面：多模态、语音与代码 Agent](books/v6-safety/chapters/ch10.md)
-| 多模态与生成篇：视觉、语音与扩散 | 视觉 token、图文对齐、语音识别与合成、视频、扩散与流模型 | 9 | 36 | [读](books/v9-multimodal/README.md) | [下](output/v9-multimodal.pdf) |
-| 训练系统篇：并行、显存与通信 | 四种并行、ZeRO、重计算、通信重叠、低精度、故障恢复 | 8 | 31 | [读](books/v10-systems/README.md) | [下](output/v10-systems.pdf) |
-| 可解释性与评测篇：看得懂与测得准 | 探针与方向、稀疏自编码器、电路分析、归因、污染与判定模型、私有评测 | 8 | 31 | [读](books/v11-interpret/README.md) | [下](output/v11-interpret.pdf) |
 
 ### 多模态与生成篇：视觉、语音与扩散
 

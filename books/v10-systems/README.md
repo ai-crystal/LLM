@@ -8,10 +8,10 @@
 
 | 章 | 标题 |
 |---|---|
-| 1 | [并行的四种切法](chapters/ch01.md) |
+| 1 | [四种切法的全景](chapters/ch01.md) |
 | 2 | [数据并行与 ZeRO](chapters/ch02.md) |
 | 3 | [张量并行与序列并行](chapters/ch03.md) |
-| 4 | [流水线并行与专家并行](chapters/ch04.md) |
+| 4 | [流水线与专家并行](chapters/ch04.md) |
 | 5 | [显存账：权重、状态与激活](chapters/ch05.md) |
 | 6 | [通信与重叠](chapters/ch06.md) |
 | 7 | [精度：从 FP32 到 FP8](chapters/ch07.md) |
