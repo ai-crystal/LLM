@@ -16,11 +16,11 @@
 
 | 册 | 讲什么 | 章数 | 页数 | 在线阅读 | PDF |
 |---|---|---|---|---|---|
-| 入门篇：大模型是什么 | 零公式，从一句话的续写下半截讲到一张账单 | 10 | 93 | [读](books/v1-intro/README.md) | [下](output/v1-intro.pdf) |
+| 入门篇：大模型是什么 | 零公式，从一句话的续写下半截讲到一张账单 | 10 | 91 | [读](books/v1-intro/README.md) | [下](output/v1-intro.pdf) |
 | 基础篇：从预测下一个词到 Transformer | 语言模型、嵌入、RNN、注意力、Transformer、位置编码、参数账 | 11 | 157 | [读](books/v2-basics/README.md) | [下](output/v2-basics.pdf) |
 | 预训练篇：数据、词表与规模 | 语料与清洗、分词器、缩放定律、训练系统、稳定性 | 12 | 147 | [读](books/v3-pretrain/README.md) | [下](output/v3-pretrain.pdf) |
 | 架构改造篇：注意力、归一化与专家网络 | KV 缓存、MQA/GQA/MLA、FlashAttention、稀疏与 SSM、MoE、长上下文 | 9 | 113 | [读](books/v4-architecture/README.md) | [下](output/v4-architecture.pdf) |
-| 对齐篇：从 SFT 到 Agent 后训练 | 指令微调、奖励模型、PPO、DPO 家族、可验证奖励、过程奖励与搜索、蒸馏式对齐、Agent 后训练 | 12 | 70 | [读](books/v5-alignment/README.md) | [下](output/v5-alignment.pdf) |
+| 对齐篇：从 SFT 到 Agent 后训练 | 指令微调、奖励模型、PPO、DPO 家族、可验证奖励、过程奖励与搜索、蒸馏式对齐、Agent 后训练 | 12 | 73 | [读](books/v5-alignment/README.md) | [下](output/v5-alignment.pdf) |
 | 安全与攻破篇：红队、越狱、投毒与防御 | 威胁模型、越狱两类、提示注入、微调攻破、数据投毒、窃取与隐私、防御栈、安全评测 | 9 | 50 | [读](books/v6-safety/README.md) | [下](output/v6-safety.pdf) |
 
 ## 目录
@@ -37,7 +37,7 @@
 - [第7章　三种用法：提示、微调、检索与智能体](books/v1-intro/chapters/ch07.md)
 - [第8章　怎么判断一个模型好不好](books/v1-intro/chapters/ch08.md)
 - [第9章　风险与边界：版权、隐私、安全、对齐](books/v1-intro/chapters/ch09.md)
-- [第10章　这个系列怎么读：八卷地图与三条路线](books/v1-intro/chapters/ch10.md)
+- [第10章　这个系列怎么读：十一个方向与三条路线](books/v1-intro/chapters/ch10.md)
 
 ### 基础篇：从预测下一个词到 Transformer
 

@@ -12,6 +12,6 @@
   - [第7章 三种用法：提示、微调、检索与智能体](/books/v1-intro/chapters/ch07.md)
   - [第8章 怎么判断一个模型好不好](/books/v1-intro/chapters/ch08.md)
   - [第9章 风险与边界：版权、隐私、安全、对齐](/books/v1-intro/chapters/ch09.md)
-  - [第10章 这个系列怎么读：十一卷地图与三条路线](/books/v1-intro/chapters/ch10.md)
+  - [第10章 这个系列怎么读：十一个方向与三条路线](/books/v1-intro/chapters/ch10.md)
 
 - [下载本册 PDF](/output/v1-intro.pdf)

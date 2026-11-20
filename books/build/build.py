@@ -286,8 +286,14 @@ def build_book(book: Path, pandoc: str, xelatex: str, optimize: bool = True) -> 
         size_mb = pdf.stat().st_size / 1024 / 1024
 
     output.parent.mkdir(exist_ok=True)
-    shutil.copyfile(pdf, output)
-    print(f"[4/4] done: {output.relative_to(ROOT)} ({size_mb:.1f} MB)")
+    try:
+        shutil.copyfile(pdf, output)
+        print(f"[4/4] done: {output.relative_to(ROOT)} ({size_mb:.1f} MB)")
+    except PermissionError:
+        # 文件被阅读器占用时不要中断后续各册的构建
+        alt = output.with_name(output.stem + ".new.pdf")
+        shutil.copyfile(pdf, alt)
+        print(f"[4/4] {output.name} 被占用，已写成 {alt.name}（关闭阅读器后可手动改名）")
 
 
 def all_books() -> list[Path]:
