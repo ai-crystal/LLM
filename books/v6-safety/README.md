@@ -2,7 +2,7 @@
 
 > 大模型技术全景 · Dr. Dezeming · 2026
 
-共 9 章，[下载本册 PDF](../../output/v6-safety.pdf)。
+共 10 章，[下载本册 PDF](../../output/v6-safety.pdf)。
 
 ## 目录
 
@@ -17,5 +17,6 @@
 | 7 | [模型窃取与隐私：把学到的东西挖出来](chapters/ch07.md) |
 | 8 | [防御栈：没有单层是可靠的](chapters/ch08.md) |
 | 9 | [安全评测与治理：怎么知道它到底有多难破](chapters/ch09.md) |
+| 10 | [新攻击面：多模态、语音与代码 Agent](chapters/ch10.md) |
 
 [返回系列首页](../../README.md)

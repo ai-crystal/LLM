@@ -12,5 +12,6 @@
   - [第7章 模型窃取与隐私：把学到的东西挖出来](/books/v6-safety/chapters/ch07.md)
   - [第8章 防御栈：没有单层是可靠的](/books/v6-safety/chapters/ch08.md)
   - [第9章 安全评测与治理：怎么知道它到底有多难破](/books/v6-safety/chapters/ch09.md)
+  - [第10章 新攻击面：多模态、语音与代码 Agent](/books/v6-safety/chapters/ch10.md)
 
 - [下载本册 PDF](/output/v6-safety.pdf)
