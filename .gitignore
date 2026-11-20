@@ -21,3 +21,6 @@ __pycache__/
 
 # 根目录旧版 PDF（正式产物在 output/）
 /*.pdf
+
+# 阅读器占用时的临时产物
+output/*.new.pdf
