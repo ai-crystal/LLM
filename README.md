@@ -25,7 +25,7 @@
 | 推理与部署篇：引擎、压缩与投机解码 | 两个阶段、KV 缓存、批处理、前缀复用、量化、剪枝蒸馏、投机解码、容量规划 | 10 | 125 | [读](books/v7-inference/README.md) | [下](output/v7-inference.pdf) |
 | 应用与 Agent 系统篇：检索、工具与智能体 | 切块与索引、混合检索与重排、上下文组装、检索评测、工具调用、Agent 循环、记忆 | 10 | 124 | [读](books/v8-apps/README.md) | [下](output/v8-apps.pdf) |
 | 多模态与生成篇：视觉、语音与扩散 | 视觉 token、图文对齐、语音识别与合成、视频、扩散与流匹配、统一模型 | 9 | 108 | [读](books/v9-multimodal/README.md) | [下](output/v9-multimodal.pdf) |
-| 训练系统篇：并行、显存与通信 | 四种并行、ZeRO、流水线气泡、显存六块账、通信重叠、低精度、故障恢复 | 8 | 108 | [读](books/v10-systems/README.md) | [下](output/v10-systems.pdf) |
+| 训练系统篇：并行、显存与通信 | 四种并行、ZeRO、流水线气泡、显存六块账、通信重叠、低精度、故障恢复 | 8 | 110 | [读](books/v10-systems/README.md) | [下](output/v10-systems.pdf) |
 | 可解释性与评测篇：看得懂与测得准 | 探针与方向、稀疏自编码器、电路分析、logit lens、污染与判定模型、私有评测 | 8 | 106 | [读](books/v11-interpret/README.md) | [下](output/v11-interpret.pdf) |
 
 ## 目录
