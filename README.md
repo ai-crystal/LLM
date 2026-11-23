@@ -4,9 +4,9 @@
 
 **作者：Dr. Dezeming**　·　2026
 
-**在线阅读**：[https://YOUR-NAME.github.io/llm-book/](https://YOUR-NAME.github.io/llm-book/)（[站点入口](index.html)）
+**在线阅读**：[https://ai-crystal.github.io/LLM/](https://ai-crystal.github.io/LLM/)（[站点入口](index.html)）
 
-<!-- 发布到 GitHub Pages 后，把上面的 YOUR-NAME 换成你的 GitHub 用户名 -->
+<!-- 站点：Settings → Pages → Deploy from a branch，分支 main，目录 / (root) -->
 
 语言模型在几年里从“会续写”变成了“会推理、会用工具、会干活”。这套书沿着一条连续的技术线索，把这条路上真正起作用的设计讲清楚：数据怎么筛，模型怎么长高长宽，注意力为什么这样改，专家网络如何稀疏，对齐怎样从偏好里学出行为，推理引擎又如何在显存与延迟之间做取舍。
 
