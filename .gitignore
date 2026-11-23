@@ -1,5 +1,6 @@
 # 本地私有资料：写作规范、大纲、Agent 记录、下载的论文与 PDF 源文件
 _private/
+.context/
 
 # 构建中间产物（每册一个子目录）
 books/build/work/
