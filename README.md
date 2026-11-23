@@ -20,8 +20,8 @@
 | 基础篇：从预测下一个词到 Transformer | 语言模型、嵌入、RNN、注意力、Transformer、位置编码、参数账 | 11 | 157 | [读](books/v2-basics/README.md) | [下](output/v2-basics.pdf) |
 | 预训练篇：数据、词表与规模 | 语料与清洗、分词器、缩放定律、训练系统、稳定性 | 12 | 147 | [读](books/v3-pretrain/README.md) | [下](output/v3-pretrain.pdf) |
 | 架构改造篇：注意力、归一化与专家网络 | KV 缓存、MQA/GQA/MLA、FlashAttention、稀疏与 SSM、MoE、长上下文 | 9 | 113 | [读](books/v4-architecture/README.md) | [下](output/v4-architecture.pdf) |
-| 对齐篇：从 SFT 到 Agent 后训练 | 指令微调、奖励模型、PPO、DPO 家族、可验证奖励、过程奖励与搜索、Agent 后训练 | 12 | 138 | [读](books/v5-alignment/README.md) | [下](output/v5-alignment.pdf) |
-| 安全与攻破篇：红队、越狱、投毒与防御 | 威胁模型、越狱两类、提示注入、微调攻破、数据投毒、窃取与隐私、防御栈、评测 | 11 | 118 | [读](books/v6-safety/README.md) | [下](output/v6-safety.pdf) |
+| 对齐篇：从 SFT 到 Agent 后训练 | 指令微调、奖励模型、PPO、DPO 家族、可验证奖励、过程奖励与搜索、Agent 后训练 | 12 | 139 | [读](books/v5-alignment/README.md) | [下](output/v5-alignment.pdf) |
+| 安全与攻破篇：红队、越狱、投毒与防御 | 威胁模型、越狱两类、提示注入、微调攻破、数据投毒、窃取与隐私、防御栈、评测 | 11 | 119 | [读](books/v6-safety/README.md) | [下](output/v6-safety.pdf) |
 | 推理与部署篇：引擎、压缩与投机解码 | 两个阶段、KV 缓存、批处理、前缀复用、量化、剪枝蒸馏、投机解码、容量规划 | 10 | 125 | [读](books/v7-inference/README.md) | [下](output/v7-inference.pdf) |
 | 应用与 Agent 系统篇：检索、工具与智能体 | 切块与索引、混合检索与重排、上下文组装、检索评测、工具调用、Agent 循环、记忆 | 10 | 124 | [读](books/v8-apps/README.md) | [下](output/v8-apps.pdf) |
 | 多模态与生成篇：视觉、语音与扩散 | 视觉 token、图文对齐、语音识别与合成、视频、扩散与流匹配、统一模型 | 9 | 108 | [读](books/v9-multimodal/README.md) | [下](output/v9-multimodal.pdf) |
