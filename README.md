@@ -21,7 +21,7 @@
 | 预训练篇：数据、词表与规模 | 语料与清洗、分词器、缩放定律、训练系统、稳定性 | 12 | 147 | [读](books/v3-pretrain/README.md) | [下](output/v3-pretrain.pdf) |
 | 架构改造篇：注意力、归一化与专家网络 | KV 缓存、MQA/GQA/MLA、FlashAttention、稀疏与 SSM、MoE、长上下文 | 9 | 113 | [读](books/v4-architecture/README.md) | [下](output/v4-architecture.pdf) |
 | 对齐篇：从 SFT 到 Agent 后训练 | 指令微调、奖励模型、PPO、DPO 家族、可验证奖励、过程奖励与搜索、Agent 后训练 | 12 | 138 | [读](books/v5-alignment/README.md) | [下](output/v5-alignment.pdf) |
-| 安全与攻破篇：红队、越狱、投毒与防御 | 威胁模型、越狱两类、提示注入、微调攻破、数据投毒、窃取与隐私、防御栈、评测 | 10 | 107 | [读](books/v6-safety/README.md) | [下](output/v6-safety.pdf) |
+| 安全与攻破篇：红队、越狱、投毒与防御 | 威胁模型、越狱两类、提示注入、微调攻破、数据投毒、窃取与隐私、防御栈、评测 | 11 | 118 | [读](books/v6-safety/README.md) | [下](output/v6-safety.pdf) |
 | 推理与部署篇：引擎、压缩与投机解码 | 两个阶段、KV 缓存、批处理、前缀复用、量化、剪枝蒸馏、投机解码、容量规划 | 10 | 125 | [读](books/v7-inference/README.md) | [下](output/v7-inference.pdf) |
 | 应用与 Agent 系统篇：检索、工具与智能体 | 切块与索引、混合检索与重排、上下文组装、检索评测、工具调用、Agent 循环、记忆 | 10 | 124 | [读](books/v8-apps/README.md) | [下](output/v8-apps.pdf) |
 | 多模态与生成篇：视觉、语音与扩散 | 视觉 token、图文对齐、语音识别与合成、视频、扩散与流匹配、统一模型 | 9 | 108 | [读](books/v9-multimodal/README.md) | [下](output/v9-multimodal.pdf) |
@@ -128,11 +128,12 @@
 - [第3章　越狱（二）：让算法去找](books/v6-safety/chapters/ch03.md)
 - [第4章　提示注入：把指令藏在数据里](books/v6-safety/chapters/ch04.md)
 - [第5章　微调攻破：几十条数据拆掉安全对齐](books/v6-safety/chapters/ch05.md)
-- [第6章　数据投毒：在训练集里埋一颗雷](books/v6-safety/chapters/ch06.md)
-- [第7章　模型窃取与隐私：把学到的东西挖出来](books/v6-safety/chapters/ch07.md)
-- [第8章　防御栈：没有单层是可靠的](books/v6-safety/chapters/ch08.md)
-- [第9章　安全评测与治理：怎么知道它到底有多难破](books/v6-safety/chapters/ch09.md)
-- [第10章　新攻击面：多模态、语音与代码 Agent](books/v6-safety/chapters/ch10.md)
+- [第6章　安全对齐是怎么训出来的](books/v6-safety/chapters/ch06.md)
+- [第7章　数据投毒：在训练集里埋一颗雷](books/v6-safety/chapters/ch07.md)
+- [第8章　模型窃取与隐私：把学到的东西挖出来](books/v6-safety/chapters/ch08.md)
+- [第9章　防御栈：没有单层是可靠的](books/v6-safety/chapters/ch09.md)
+- [第10章　安全评测与治理：怎么知道它到底有多难破](books/v6-safety/chapters/ch10.md)
+- [第11章　新攻击面：多模态、语音与代码 Agent](books/v6-safety/chapters/ch11.md)
 
 ### 多模态与生成篇：视觉、语音与扩散
 
