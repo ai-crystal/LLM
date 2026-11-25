@@ -14,7 +14,7 @@
 
 | 册 | 书名 | 一句话 | 页数 | 在线阅读 | PDF |
 | --- | --- | --- | ---: | --- | --- |
-| 01 | [入门篇](books/v1-intro/README.md) | 大模型是什么：零公式纵览全貌 | 172 | [阅读](books/v1-intro/README.md) | <a href="output/v1-intro.pdf" target="_blank" rel="noopener" data-router-ignore>下载</a> |
+| 01 | [入门篇](books/v1-intro/README.md) | 大模型是什么：零公式纵览全貌 | 185 | [阅读](books/v1-intro/README.md) | <a href="output/v1-intro.pdf" target="_blank" rel="noopener" data-router-ignore>下载</a> |
 | 02 | [基础篇](books/v2-basics/README.md) | 从预测下一个词到 Transformer | 157 | [阅读](books/v2-basics/README.md) | <a href="output/v2-basics.pdf" target="_blank" rel="noopener" data-router-ignore>下载</a> |
 | 03 | [预训练篇](books/v3-pretrain/README.md) | 数据、词表与规模 | 147 | [阅读](books/v3-pretrain/README.md) | <a href="output/v3-pretrain.pdf" target="_blank" rel="noopener" data-router-ignore>下载</a> |
 | 04 | [架构改造篇](books/v4-architecture/README.md) | 注意力、归一化与专家网络 | 113 | [阅读](books/v4-architecture/README.md) | <a href="output/v4-architecture.pdf" target="_blank" rel="noopener" data-router-ignore>下载</a> |
