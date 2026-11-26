@@ -19,7 +19,7 @@
 | 03 | [预训练篇](books/v3-pretrain/README.md) | 数据、词表与规模 | 147 | [阅读](books/v3-pretrain/README.md) | <a href="output/v3-pretrain.pdf" target="_blank" rel="noopener" data-router-ignore>下载</a> |
 | 04 | [架构改造篇](books/v4-architecture/README.md) | 注意力、归一化与专家网络 | 125 | [阅读](books/v4-architecture/README.md) | <a href="output/v4-architecture.pdf" target="_blank" rel="noopener" data-router-ignore>下载</a> |
 | 05 | [对齐篇](books/v5-alignment/README.md) | 从 SFT 到 Agent 后训练 | 139 | [阅读](books/v5-alignment/README.md) | <a href="output/v5-alignment.pdf" target="_blank" rel="noopener" data-router-ignore>下载</a> |
-| 06 | [安全与攻破篇](books/v6-safety/README.md) | 红队、越狱、投毒与防御 | 119 | [阅读](books/v6-safety/README.md) | <a href="output/v6-safety.pdf" target="_blank" rel="noopener" data-router-ignore>下载</a> |
+| 06 | [安全与攻破篇](books/v6-safety/README.md) | 红队、越狱、投毒与防御 | 128 | [阅读](books/v6-safety/README.md) | <a href="output/v6-safety.pdf" target="_blank" rel="noopener" data-router-ignore>下载</a> |
 | 07 | [推理与部署篇](books/v7-inference/README.md) | 引擎、压缩与投机解码 | 125 | [阅读](books/v7-inference/README.md) | <a href="output/v7-inference.pdf" target="_blank" rel="noopener" data-router-ignore>下载</a> |
 | 08 | [应用与 Agent 系统篇](books/v8-apps/README.md) | 检索、工具与智能体 | 124 | [阅读](books/v8-apps/README.md) | <a href="output/v8-apps.pdf" target="_blank" rel="noopener" data-router-ignore>下载</a> |
 | 09 | [多模态与生成篇](books/v9-multimodal/README.md) | 视觉、语音与扩散 | 108 | [阅读](books/v9-multimodal/README.md) | <a href="output/v9-multimodal.pdf" target="_blank" rel="noopener" data-router-ignore>下载</a> |
