@@ -11,6 +11,7 @@
   - [第6章 混合专家：路由、负载均衡、细粒度](/books/v4-architecture/chapters/ch06.md)
   - [第7章 长上下文：位置、注意力、数据、评测](/books/v4-architecture/chapters/ch07.md)
   - [第8章 Attention Residuals：残差流上的路由](/books/v4-architecture/chapters/ch08.md)
-  - [第9章 架构取舍：什么场景选什么](/books/v4-architecture/chapters/ch09.md)
+  - [第9章 循环深度：让同一层多跑几遍](/books/v4-architecture/chapters/ch09.md)
+  - [第10章 架构取舍：什么场景选什么](/books/v4-architecture/chapters/ch10.md)
 
 - [下载本册 PDF](/output/v4-architecture.pdf)

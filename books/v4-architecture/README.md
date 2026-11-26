@@ -2,7 +2,7 @@
 
 > 大模型技术全景 · Dr. Dezeming · 2026
 
-共 9 章，[下载本册 PDF](../../output/v4-architecture.pdf)。
+共 10 章，[下载本册 PDF](../../output/v4-architecture.pdf)。
 
 ## 目录
 
@@ -16,6 +16,7 @@
 | 6 | [混合专家：路由、负载均衡、细粒度](chapters/ch06.md) |
 | 7 | [长上下文：位置、注意力、数据、评测](chapters/ch07.md) |
 | 8 | [Attention Residuals：残差流上的路由](chapters/ch08.md) |
-| 9 | [架构取舍：什么场景选什么](chapters/ch09.md) |
+| 9 | [循环深度：让同一层多跑几遍](chapters/ch09.md) |
+| 10 | [架构取舍：什么场景选什么](chapters/ch10.md) |
 
 [返回系列首页](../../README.md)
