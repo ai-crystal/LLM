@@ -157,6 +157,53 @@ def fig_03_taxonomy():
     save(fig, "03/taxonomy.png")
 
 
+def fig_03b_tradeoff():
+    """第 3 章：混入通用语料的比例，通用能力与格式遵循的交叉。"""
+    from matplotlib.ticker import FuncFormatter
+
+    fig, ax = plotcanvas(2.40, bottom=0.235)
+
+    x = np.linspace(0, 40, 400)
+    keep = 88 + 11 * (1 - np.exp(-x / 12))
+    fmt = 96 - 34 * (x / 40) ** 1.6
+
+    ax.fill_between(x, fmt, keep, where=keep >= fmt, color=tint(GOLD, 0.12),
+                    lw=0, zorder=0)
+    ax.plot(x, keep, color=GREEN, lw=1.2)
+    ax.plot(x, fmt, color=RED, lw=1.2)
+    ax.text(31.0, 96.2, "通用能力保持率", fontsize=FS_S - 0.4, color=GREEN,
+            ha="left", va="top")
+    ax.text(21.5, 79.2, "格式遵循率", fontsize=FS_S - 0.4, color=RED,
+            ha="left", va="top")
+
+    ax.axvspan(5, 15, color=tint(NAVY, 0.07), zorder=0)
+    ax.text(10, 62.0, "可用区", fontsize=FS_S - 0.6, color=NAVY, ha="center")
+
+    # 两条曲线的交点：低于它格式优先，高于它通用能力优先
+    i = int(np.argmin(np.abs(keep - fmt)))
+    ax.plot([x[i]], [keep[i]], "o", ms=3.4, color=GRAY, zorder=6)
+    ax.text(x[i] - 0.9, keep[i] + 2.4, f"交点 ≈{x[i]:.0f}%",
+            fontsize=FS_S - 1.0, color=GRAY, ha="right", va="bottom")
+
+    # 按条数混 10% 的真实位置
+    ax.plot([27, 27], [60, 95], color=GRAY, lw=0.6, ls=":", zorder=1)
+    ax.text(25.8, 96.4, "按条混 10%\n实际是 27% token", fontsize=FS_S - 1.0,
+            color=GRAY, ha="right", va="top")
+
+    ax.set_xlim(0, 40)
+    ax.set_ylim(60, 100)
+    ax.set_xticks([0, 5, 10, 15, 20, 27, 35, 40])
+    ax.xaxis.set_major_formatter(FuncFormatter(lambda v, _: f"{v:.0f}%"))
+    ax.set_xlabel("通用语料 token 占比", fontsize=FS_S)
+    ax.set_ylabel("比率 / %", fontsize=FS_S)
+    ax.tick_params(labelsize=FS_S - 0.8)
+
+    fig.text(0.5, 0.030, "左侧格式优先，右侧通用能力优先：可用区在 5% 到 15% 之间",
+             fontsize=FS_S - 0.4, color=GRAY, ha="center")
+
+    save(fig, "03/tradeoff.png")
+
+
 # ---------------------------------------------------------------- 05 PPO
 
 def fig_05_batch():
@@ -502,19 +549,16 @@ def fig_07_std():
     ax.axvline(0.5, color=GRAY, lw=0.6, ls=":")
 
     ax.set_xlim(0, 1)
-    ax.set_ylim(0, 3.4)
+    ax.set_ylim(0, 3.8)
     ax.set_xlabel("组内通过率 p（G = 8）", fontsize=FS_S)
     ax.set_ylabel("|A|", fontsize=FS_S)
     ax.set_title("优势随通过率的两端翘起，梯度却越来越不可信",
                  fontsize=FS_S + 0.4, color=INK, pad=6)
     ax.legend(frameon=False, fontsize=FS_S - 0.8, loc="upper center")
-    ax.text(0.055, 2.95, "p = 1/8\n只有一条正样本", fontsize=FS_S - 1.0,
-            color=GRAY, ha="left", va="top")
-    ax.text(0.955, 2.95, "p = 7/8\n只有一条负样本", fontsize=FS_S - 1.0,
-            color=GRAY, ha="right", va="top")
     ax.tick_params(labelsize=FS_S - 0.8)
 
-    fig.text(0.5, 0.028, "p = 0 或 1 时标准差为 0，整组优势为零：这类题白采",
+    fig.text(0.5, 0.028,
+             "p = 0 或 1 时整组优势为零；p = 1/8 时只剩一条样本定正负",
              fontsize=FS_S - 0.4, color=GRAY, ha="center")
 
     save(fig, "07/group_std.png")
@@ -567,6 +611,47 @@ def fig_10_timeline():
     save(fig, "10/timeline.png")
 
 
+# ---------------------------------------------------------------- 12 评测漏斗
+
+def fig_12_funnel():
+    """第 12 章：四层评测漏斗，样本量与最小可检出差异。"""
+    fig, ax = canvas(2.45)
+
+    note(ax, 5.20, 4.62,
+         "层数越往下越贵，能分出的差异越小；错位的用法是用两百条去定三个点",
+         fs=FS_S)
+
+    txt(ax, 0.18, 4.24, "层级 / 样本量", fs=FS_S - 0.8, color=GRAY, ha="left")
+    txt(ax, 7.10, 4.24, "最小可检出差异", fs=FS_S - 0.8, color=GRAY, ha="left")
+    ax.plot([0.16, 10.10], [4.10, 4.10], color=LGRAY, lw=0.7, zorder=1)
+
+    rows = [
+        ("第一层 单元测试", "3000 条 · 每次提交", 3000, "每次提交", "只拦碎坑", NAVY),
+        ("第二层 小样本人评", "200 条 · 两小时", 200, "两小时", "8 个点以上", TEAL),
+        ("第三层 模型评审", "2000 条 · 半天", 2000, "半天", "3 个点", GOLD),
+        ("第四层 线上对照", "2 万次 · 一周", 20000, "一周", "1 到 2 个点", RED),
+    ]
+
+    ys = [3.30, 2.42, 1.54, 0.66]
+    bh = 0.50
+    for (name, sub, n, inside, mde, color), y in zip(rows, ys):
+        w = 0.90 + (np.log10(n) - 2.3) * 1.35
+        box(ax, 3.30, y, w, bh, "", fc=tint(color, 0.13), ec=color, lw=0.8)
+        txt(ax, 3.30 + w / 2, y + bh / 2, inside, fs=FS_S - 1.2, color=color)
+        txt(ax, 0.18, y + bh * 0.66, name, fs=FS_S - 0.2, ha="left",
+            color=INK, weight="bold")
+        note(ax, 0.18, y + bh * 0.22, sub, fs=FS_S - 1.4, ha="left")
+        txt(ax, 7.10, y + bh / 2, mde, fs=FS_S - 0.4, ha="left", color=color)
+
+    for y in [3.12, 2.24, 1.36]:
+        ax.plot([0.16, 10.10], [y, y], color=LGRAY, lw=0.5, ls=":", zorder=1)
+
+    note(ax, 5.20, 0.22,
+         "每层样本量由 MDE = 2.8 × 标准误 反推，不是拍脑袋定的", fs=FS_S - 0.6)
+
+    save(fig, "12/funnel.png")
+
+
 FIGS = {
     "01": fig_01_pipeline,
     "02": fig_02_data,
@@ -577,9 +662,11 @@ FIGS = {
     "06": fig_06_logratio,
     "07": fig_07_grpo,
     "07b": fig_07_std,
+    "03b": fig_03b_tradeoff,
     "10": fig_10_mask,
     "10b": fig_10_timeline,
     "11": fig_11_async,
+    "12": fig_12_funnel,
 }
 
 

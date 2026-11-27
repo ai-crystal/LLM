@@ -764,6 +764,201 @@ def fig_13_recovery():
     save(fig, "08/recovery.png")
 
 
+# ------------------------------------------------- 14 最小卡数（第 1 章）
+
+def fig_14_min_cards():
+    """第 1 章：三档规模、三档精度，各要多少张 80 GB 卡才装得下。"""
+    fig, ax = canvas(2.66)
+
+    cols = [(3.42, "16 字节"), (6.00, "12 字节"), (8.57, "9 字节")]
+    for xc, lab in cols:
+        txt(ax, xc, 4.92, lab, fs=FS - 0.4, weight="bold")
+
+    rows = [
+        ("400B", [("6400 GB", 107), ("4860 GB", 81), ("3645 GB", 60)]),
+        ("70B", [("1120 GB", 19), ("840 GB", 14), ("630 GB", 11)]),
+        ("7B", [("112 GB", 2), ("84 GB", 2), ("63 GB", 2)]),
+    ]
+
+    def shade(n):
+        if n <= 4:
+            return tint(NAVY, 0.10), INK
+        if n <= 24:
+            return tint(NAVY, 0.34), INK
+        return tint(NAVY, 0.72), "white"
+
+    for i, (name, cells) in enumerate(rows):
+        y = 3.18 - i * 1.10
+        txt(ax, 1.05, y + 0.50, name, fs=FS, weight="bold")
+        for (xc, _), (g, n) in zip(cols, cells):
+            fc, tc = shade(n)
+            box(ax, xc - 1.24, y, 2.48, 1.00, fc=fc, ec="white", lw=1.0)
+            txt(ax, xc, y + 0.66, g, fs=5.9, color=tc)
+            txt(ax, xc, y + 0.29, f"{n} 张", fs=FS - 0.2, color=tc,
+                weight="bold")
+
+    note(ax, 5.05, 0.60,
+         "卡数 = 参数相关显存 ÷ 60 GB（20 GB 留给激活、缓冲与碎片）",
+         fs=6.3)
+    note(ax, 5.05, 0.22,
+         "同一行三列看“降精度能省几张卡”，同一列三行看规模翻几倍", fs=6.1)
+
+    save(fig, "01/min-cards.png")
+
+
+# ------------------------------------------------- 15 省显存的价钱（第 5 章）
+
+def fig_15_price_of_gb():
+    """第 5 章：每种省显存的手段，每省 1 GB 要付多少时间。"""
+    setup()
+    fig = plt.figure(figsize=(W, 2.58))
+    fig.patch.set_facecolor("white")
+    ax = fig.add_axes([0.135, 0.250, 0.830, 0.650])
+
+    pts = [
+        ("全量重计算", 18, 33, RED),
+        ("8 位优化器", 42, 3, GOLD),
+        ("ZeRO-2（8 卡）", 73.5, 0.5, NAVY),
+        ("优化器状态卸载", 84, 60, RED),
+        ("微批 4→1", 58, 22, GOLD),
+        ("序列 8K→4K", 27, 1.5, NAVY),
+    ]
+    for lab, gb, pct, c in pts:
+        ax.plot([gb], [pct], "o", ms=5.0, color=c, markeredgecolor="white",
+                markeredgewidth=0.7, zorder=6)
+
+    offs = {
+        "全量重计算": (20.5, 38.0, "left"),
+        "8 位优化器": (43, 8.2, "center"),
+        "ZeRO-2（8 卡）": (73, 6.0, "center"),
+        "优化器状态卸载": (81, 65.0, "right"),
+        "微批 4→1": (60, 27.0, "left"),
+        "序列 8K→4K": (27, 8.5, "center"),
+    }
+    for lab, gb, pct, c in pts:
+        xt, yt, ha = offs[lab]
+        ax.annotate(lab, xy=(gb, pct), xytext=(xt, yt),
+                    fontsize=6.4, color=c, ha=ha, va="center")
+
+    ax.fill_between([14, 110], [-3, -3], [12, 12], color=tint(NAVY, 0.07),
+                    zorder=0, lw=0)
+    ax.text(15.5, 15.8, "便宜区：多花不到一成时间", fontsize=6.2, color=NAVY,
+            ha="left", va="center", zorder=7)
+
+    ax.set_xscale("log")
+    ax.set_xlim(14, 110)
+    ax.set_ylim(-3, 68)
+    ax.set_xticks([20, 40, 60, 80, 100])
+    ax.set_xticklabels(["20", "40", "60", "80", "100"], fontsize=6.8)
+    ax.set_yticks([0, 20, 40, 60])
+    ax.set_yticklabels(["0", "20%", "40%", "60%"], fontsize=6.8)
+    ax.set_xlabel("调一次能省下的显存（GB，7B 口径）", fontsize=6.6, labelpad=3)
+    ax.set_ylabel("多花的训练时间", fontsize=6.6, labelpad=3)
+    ax.minorticks_off()
+    ax.tick_params(axis="both", length=2.5, width=0.6, color=GRAY, pad=2)
+    ax.spines["left"].set_color(GRAY)
+    ax.spines["bottom"].set_color(GRAY)
+
+    save(fig, "05/price-of-gb.png")
+
+
+# ------------------------------------------------- 16 故障树（第 8 章）
+
+def fig_16_fault_tree():
+    """第 8 章：一次非计划停机往上追，四类原因各占多少、先看什么。"""
+    fig, ax = canvas(2.55)
+
+    box(ax, 4.05, 4.30, 2.30, 0.58, "作业非计划停机", fc=tint(RED, 0.12),
+        ec=RED, fs=FS - 0.2, weight="bold")
+
+    ax.plot([5.20, 5.20], [4.30, 3.86], color=GRAY, lw=0.8, zorder=1)
+    ax.plot([1.30, 9.10], [3.86, 3.86], color=GRAY, lw=0.8, zorder=1)
+
+    br = [
+        (1.30, "显卡硬件", "四到五成", "Xid 与 ECC 计数", "先隔离再换卡"),
+        (3.90, "网络", "两成", "端口错误计数", "看尾延迟分布"),
+        (6.50, "节点与存储", "两成", "dmesg 与读超时", "换挂载点重试"),
+        (9.10, "软件", "一成", "py-spy 抓栈", "查进程组规模"),
+    ]
+    for i, (xc, name, share, hint1, hint2) in enumerate(br):
+        ax.plot([xc, xc], [3.86, 3.44], color=GRAY, lw=0.8, zorder=1)
+        box(ax, xc - 1.12, 2.66, 2.24, 0.74,
+            f"{name}\n{share}", fc=tint(NAVY, 0.10 + 0.03 * i),
+            ec=NAVY_L, fs=6.6)
+        note(ax, xc, 2.30, hint1, fs=5.9)
+        note(ax, xc, 1.96, hint2, fs=5.9, color=NAVY)
+
+    note(ax, 5.20, 1.40,
+         "每一类都有自己的“第一眼看什么”，混在一起查会在四类之间来回跳",
+         fs=6.3)
+    ax.plot([1.30, 9.10], [1.10, 1.10], color=LGRAY, lw=0.7, zorder=1)
+    note(ax, 5.20, 0.70,
+         "软件类不占多数，却占了多数“第一次判断错误”：它能模仿前三类的全部症状",
+         fs=6.2)
+
+    save(fig, "08/fault-tree.png")
+
+
+# ------------------------------------------------- 17 延迟占比（第 6 章）
+
+def fig_17_latency_share():
+    """第 6 章：消息越小、卡越多，全归约的时间越是被固定延迟吃掉。"""
+    setup()
+    fig = plt.figure(figsize=(W, 2.58))
+    fig.patch.set_facecolor("white")
+    ax = fig.add_axes([0.140, 0.240, 0.825, 0.655])
+
+    S = np.logspace(0, 5, 240) * 1e6          # 每卡载荷，字节
+
+    def share(N, alpha, Wb):
+        delay = 2 * (N - 1) * alpha
+        transfer = 2 * S * (N - 1) / N / Wb
+        return delay / (delay + transfer) * 100
+
+    curves = [
+        (8, 10e-6, 300e9, "8 卡，机内", NAVY),
+        (64, 25e-6, 50e9, "64 卡，跨机", GOLD),
+        (512, 50e-6, 50e9, "512 卡，跨机", RED),
+    ]
+    for N, a, w, lab, c in curves:
+        ax.plot(S / 1e6, share(N, a, w), color=c, lw=1.3, label=lab, zorder=4)
+
+    ax.axhline(10, color=GRAY, lw=0.8, ls=(0, (2, 2)), zorder=3)
+    ax.text(1.25, 13, "一成", fontsize=6.2, color=GRAY, ha="left")
+
+    for N, a, w, lab, c in curves:
+        y = share(N, a, w)
+        idx = int(np.argmin(np.abs(y - 10)))
+        ax.plot([S[idx] / 1e6], [10], "o", ms=3.6, color=c, zorder=7,
+                markeredgecolor="white", markeredgewidth=0.6)
+
+    ax.annotate("1.3 GB", xy=(1300, 10), xytext=(1600, 22),
+                fontsize=6.3, color=RED, ha="left", va="center")
+    ax.annotate("0.2 GB", xy=(216, 10), xytext=(30, 16),
+                fontsize=6.3, color=NAVY, ha="left", va="center")
+    ax.annotate("0.9 GB", xy=(870, 10), xytext=(150, 40),
+                fontsize=6.3, color=GOLD, ha="left", va="center")
+
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xlim(1, 1e5)
+    ax.set_ylim(0.2, 100)
+    ax.set_xlabel("每卡载荷 $S$（MB，对数轴）", fontsize=6.6, labelpad=3)
+    ax.set_ylabel("延迟占全归约的比例", fontsize=6.6, labelpad=3)
+    ax.set_xticks([1, 10, 100, 1000, 10000])
+    ax.set_xticklabels(["1", "10", "100", "1000", "10000"], fontsize=6.8)
+    ax.set_yticks([1, 10, 100])
+    ax.set_yticklabels(["1%", "10%", "100%"], fontsize=6.8)
+    ax.minorticks_off()
+    ax.tick_params(axis="both", length=2.5, width=0.6, color=GRAY, pad=2)
+    ax.spines["left"].set_color(GRAY)
+    ax.spines["bottom"].set_color(GRAY)
+    ax.legend(loc="lower left", frameon=False, fontsize=6.1,
+              handlelength=1.9, handletextpad=0.4, labelspacing=0.25)
+
+    save(fig, "06/latency-share.png")
+
+
 FIGS = {
     "01": fig_01_four_ways,
     "02": fig_02_zero_stages,
@@ -778,6 +973,10 @@ FIGS = {
     "11": fig_11_memory_parts,
     "12": fig_12_ring_tree,
     "13": fig_13_recovery,
+    "14": fig_14_min_cards,
+    "15": fig_15_price_of_gb,
+    "16": fig_16_fault_tree,
+    "17": fig_17_latency_share,
 }
 
 

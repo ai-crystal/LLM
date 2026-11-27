@@ -473,6 +473,56 @@ def fig_03_budget_asr():
     save(fig, "03/budget_asr.png")
 
 
+# ---------------------------------------------------------------- 06 逐层扫描
+
+def fig_06_layer_scan():
+    """第 6 章：单层消融的效果是一条 U 形，中段最敏感。"""
+    fig, ax = canvas(2.35)
+    x0, y0, w, h = 1.55, 1.30, 6.55, 2.95
+
+    ax.plot([x0, x0 + w], [y0, y0], color=GRAY, lw=0.9, zorder=2)
+    ax.plot([x0, x0], [y0, y0 + h], color=GRAY, lw=0.9, zorder=2)
+    for v in (0, 25, 50, 75, 100):
+        y = y0 + v / 100 * h
+        ax.plot([x0, x0 + w], [y, y], color=LGRAY, lw=0.6, zorder=1)
+        note(ax, x0 - 0.16, y, f"{v}", fs=FS_S, ha="right")
+
+    vals = [88, 85, 80, 72, 60, 45, 30, 18,
+            12, 14, 22, 34, 52, 68, 80, 86]
+    n = len(vals)
+    bw = w / n * 0.72
+    for i, v in enumerate(vals):
+        cx = x0 + (i + 0.5) * w / n
+        yy = y0 + v / 100 * h
+        hot = 5 <= i <= 10
+        ax.add_patch(plt.Rectangle((cx - bw / 2, y0), bw, yy - y0,
+                                   facecolor=tint(GOLD if hot else NAVY, 0.30),
+                                   edgecolor=GOLD if hot else NAVY, lw=0.7,
+                                   zorder=3))
+        note(ax, cx, y0 - 0.28, str(i + 1), fs=FS_S - 1.0)
+
+    ax.plot([x0, x0 + w], [y0 + 0.95 * h, y0 + 0.95 * h], color=RED, lw=0.9,
+            ls=(0, (3, 2)), zorder=5)
+    note(ax, x0 + w - 0.05, y0 + 0.95 * h + 0.24, "原模型：95% 拒答",
+         fs=FS_S, color=RED, ha="right")
+
+    ax.annotate("", xy=(x0 + 5 * w / n + 0.05, y0 + h * 0.62),
+                xytext=(x0 + 11 * w / n + 0.05, y0 + h * 0.62),
+                arrowprops=dict(arrowstyle="<|-|>", color=GOLD, lw=0.9,
+                                shrinkA=0, shrinkB=0), zorder=6)
+    note(ax, x0 + 8 * w / n, y0 + h * 0.68, "联合消融取这一段", fs=FS_S,
+         color=GOLD)
+
+    note(ax, x0 + w / 2, y0 - 0.56, "单独消融的层号（16 层模型）", fs=FS_S)
+    ax.text(x0 - 0.95, y0 + h / 2, "消融后拒答率（%）", fontsize=FS_S,
+            color=GRAY, rotation=90, ha="center", va="center", zorder=8)
+
+    note(ax, 1.55, 0.40, "单层最低只到 12%，说明拒绝不由一层承担；两端几乎无效。",
+         fs=FS_S, ha="left")
+
+    save(fig, "06/layer_scan.png")
+
+
 # ---------------------------------------------------------------- 06 正交化
 
 def fig_06_orthogonalize():
@@ -583,6 +633,253 @@ def fig_11_pipeline():
     save(fig, "11/redteam_pipeline.png")
 
 
+# ---------------------------------------------------------------- 05 剂量曲线
+
+def fig_05_dose():
+    """第 5 章：攻击样本从 10 条加到 500 条，拒绝率怎么塌、能力怎么掉。"""
+    import math
+
+    fig, ax = canvas(2.85)
+    x0, y0, w, h = 1.75, 1.50, 6.30, 3.50
+
+    ax.plot([x0, x0 + w], [y0, y0], color=GRAY, lw=0.9, zorder=2)
+    ax.plot([x0, x0], [y0, y0 + h], color=GRAY, lw=0.9, zorder=2)
+    for v in (0, 25, 50, 75, 100):
+        y = y0 + v / 100 * h
+        ax.plot([x0, x0 + w], [y, y], color=LGRAY, lw=0.6, zorder=1)
+        note(ax, x0 - 0.20, y, f"{v}", fs=FS_S, ha="right")
+
+    def X(n):
+        return x0 + (math.log10(n) - 1.0) / 2.0 * w
+
+    def Y(v):
+        return y0 + v / 100 * h
+
+    for n, lab in ((10, "10"), (30, "30"), (100, "100"), (300, "300"),
+                   (1000, "1000")):
+        ax.plot([X(n), X(n)], [y0, y0 - 0.10], color=GRAY, lw=0.7, zorder=2)
+        note(ax, X(n), y0 - 0.32, lab, fs=FS_S)
+
+    note(ax, x0 + w / 2, y0 - 0.66, "攻击样本数（条，对数轴）", fs=FS_S)
+    ax.text(x0 - 1.15, y0 + h / 2, "比例（%）", fontsize=FS_S, color=GRAY,
+            rotation=90, ha="center", va="center", zorder=8)
+
+    ns = [10, 15, 22, 32, 47, 68, 100, 150, 220, 320, 470, 700]
+    asr = [80 - 65 * math.exp(-n / 120.0) for n in ns]
+    cap = [100 - 4.5 * (1 - math.exp(-n / 150.0)) for n in ns]
+    ax.plot([X(n) for n in ns], [Y(v) for v in asr], color=RED, lw=1.6,
+            zorder=4, marker="o", ms=2.4)
+    ax.plot([X(n) for n in ns], [Y(v) for v in cap], color=NAVY, lw=1.4,
+            zorder=4, marker="s", ms=2.2)
+
+    # 图例放在左下角的空白区（两条曲线在上方都离开这个区域）
+    ax.plot([x0 + 0.18, x0 + 0.78], [Y(13), Y(13)], color=RED, lw=1.6, zorder=5)
+    txt(ax, x0 + 0.92, Y(13), "有害请求照做率", fs=FS_S - 0.2, color=RED,
+        ha="left")
+    ax.plot([x0 + 0.18, x0 + 0.78], [Y(4), Y(4)], color=NAVY, lw=1.4, zorder=5)
+    txt(ax, x0 + 0.92, Y(4), "通用能力保持", fs=FS_S - 0.2, color=NAVY,
+        ha="left")
+
+    ax.plot([X(100), X(100)], [y0, y0 + h * 0.93], color=GOLD, lw=0.9,
+            ls=(0, (3, 2)), zorder=3)
+    note(ax, X(100) + 0.14, Y(22), "100 条：常见拐点", fs=FS_S, color=GOLD,
+         ha="left")
+
+    box(ax, 8.50, 3.40, 1.70, 1.45, "", fc=tint(RED, 0.06), ec=LGRAY, lw=0.8)
+    note(ax, 9.35, 4.55, "照做率", fs=FS_S, color=RED)
+    note(ax, 9.35, 3.98, "20% → 79%", fs=FS - 0.4, color=RED)
+    note(ax, 9.35, 3.62, "10 → 500 条", fs=FS_S)
+
+    note(ax, 1.75, 0.48,
+         "50 条拿到一半效果，200 条已近饱和；同样的改动，能力只掉 4 个点",
+         fs=FS_S, ha="left")
+
+    save(fig, "05/dose_response.png")
+
+
+# ---------------------------------------------------------------- 09 成员推断阈值
+
+def fig_09_mia_threshold():
+    """第 9 章：成员与非成员的分数分布重叠，阈值一动四个格子跟着动。"""
+    import math
+
+    fig, ax = canvas(2.75)
+    x0, y0, w, h = 1.35, 1.30, 5.30, 3.30
+
+    def gauss(x, mu, sd):
+        return math.exp(-0.5 * ((x - mu) / sd) ** 2)
+
+    def X(v):
+        return x0 + v * w
+
+    ax.plot([x0, x0 + w], [y0, y0], color=GRAY, lw=0.9, zorder=2)
+
+    grid = [i / 200.0 for i in range(201)]
+    out_c = [gauss(v, 0.42, 0.14) for v in grid]
+    in_c = [gauss(v, 0.62, 0.13) for v in grid]
+    ax.plot([X(v) for v in grid], [y0 + c * h for c in out_c], color=NAVY,
+            lw=1.3, zorder=4)
+    ax.plot([X(v) for v in grid], [y0 + c * h for c in in_c], color=RED,
+            lw=1.3, zorder=4)
+
+    t = 0.58
+    ax.plot([X(t), X(t)], [y0, y0 + h * 0.95], color=GOLD, lw=1.0,
+            ls=(0, (3, 2)), zorder=5)
+    note(ax, X(t) - 0.14, y0 + 0.30, "阈值 0.58", fs=FS_S, color=GOLD,
+         ha="right")
+
+    txt(ax, X(0.18), y0 + h * 0.78, "不在训练集", fs=FS_S - 0.4, color=NAVY)
+    txt(ax, X(0.86), y0 + h * 0.78, "在训练集", fs=FS_S - 0.4, color=RED)
+
+    note(ax, X(0.44), y0 - 0.30, "判为“不在”", fs=FS_S)
+    note(ax, X(0.74), y0 - 0.30, "判为“在”", fs=FS_S)
+    note(ax, X(0.5), y0 + h + 0.34, "单个样本的分数（越靠右越像在训练集里）",
+         fs=FS_S)
+
+    rows = [
+        ("命中", "62%", RED),
+        ("漏掉", "38%", GRAY),
+        ("误报", "12%", GOLD),
+        ("正确排除", "88%", NAVY),
+    ]
+    yy = 4.10
+    for name, val, color in rows:
+        box(ax, 7.05, yy - 0.24, 1.15, 0.48, "", fc="white", ec=LGRAY, lw=0.8)
+        txt(ax, 7.62, yy, name, fs=FS_S)
+        txt(ax, 8.45, yy, val, fs=FS_S + 0.4, color=color, ha="left",
+            weight="bold")
+        yy -= 0.62
+
+    note(ax, 7.05, 4.62, "阈值 0.58 时", fs=FS_S, ha="left")
+    note(ax, 7.05, 1.30, "两个分布越重叠，", fs=FS_S, ha="left")
+    note(ax, 7.05, 1.04, "单条判断越像抛硬币", fs=FS_S, ha="left")
+    note(ax, 1.35, 0.72,
+         "调阈值只是把错误从一个格子搬到另一个格子，总错误不会消失",
+         fs=FS_S, ha="left")
+
+    save(fig, "09/mia_threshold.png")
+
+
+# ---------------------------------------------------------------- 10 阈值扫描
+
+def fig_10_threshold_sweep():
+    """第 10 章：阈值每加严一档，多误伤的人和少漏掉的攻击不成比例。"""
+    import math
+
+    fig, ax = canvas(2.95)
+    x0, y0, w, h = 1.85, 1.50, 6.10, 3.60
+
+    ymin, ymax = 0.0, 5.0      # log10 次数
+
+    def X(t):
+        return x0 + (t - 0.40) / 0.60 * w
+
+    def Y(v):
+        return y0 + (math.log10(max(v, 1.0)) - ymin) / (ymax - ymin) * h
+
+    ax.plot([x0, x0 + w], [y0, y0], color=GRAY, lw=0.9, zorder=2)
+    ax.plot([x0, x0], [y0, y0 + h], color=GRAY, lw=0.9, zorder=2)
+    for v, lab in ((1, "1"), (10, "10"), (100, "100"),
+                   (1000, "1k"), (10000, "1万"), (100000, "10万")):
+        y = Y(v)
+        ax.plot([x0, x0 + w], [y, y], color=LGRAY, lw=0.6, zorder=1)
+        ax.plot([x0 - 0.10, x0], [y, y], color=GRAY, lw=0.7, zorder=2)
+        note(ax, x0 - 0.22, y, lab, fs=FS_S, ha="right")
+
+    ts = [0.40, 0.45, 0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85]
+
+    def fpr(t):
+        return 10 ** (-4.4 + 9.0 * (t - 0.50))
+
+    def recall(t):
+        return 0.80 + 0.20 * (1 - math.exp(-(t - 0.40) / 0.13))
+
+    fp = [500000 * fpr(t) for t in ts]
+    fn = [300 * (1 - recall(t)) for t in ts]
+    ax.plot([X(t) for t in ts], [Y(v) for v in fp], color=RED, lw=1.5,
+            marker="o", ms=2.4, zorder=4)
+    ax.plot([X(t) for t in ts], [Y(v) for v in fn], color=NAVY, lw=1.5,
+            marker="s", ms=2.2, zorder=4)
+
+    txt(ax, X(0.425), Y(2200), "每天误伤的正常请求", fs=FS_S - 0.2,
+        color=RED, ha="left")
+    txt(ax, X(0.585), Y(1.35), "每天漏掉的攻击", fs=FS_S - 0.2,
+        color=NAVY, ha="left")
+
+    for tt in (0.50, 0.60, 0.80):
+        ax.plot([X(tt), X(tt)], [y0, y0 + h], color=GOLD, lw=0.8,
+                ls=(0, (2, 2)), zorder=3)
+        note(ax, X(tt), y0 - 0.30, f"{tt:.2f}", fs=FS_S, color=GOLD)
+
+    note(ax, x0 + w / 2, y0 - 0.66, "输入分类器的阈值 t", fs=FS_S)
+    ax.text(x0 - 1.20, y0 + h / 2, "每天次数（对数轴）", fontsize=FS_S,
+            color=GRAY, rotation=90, ha="center", va="center", zorder=8)
+
+    note(ax, 1.85, 0.48,
+         "日请求 50 万次、每天 300 次攻击；误拒率按 10^(−4.4+9(t−0.5)) 估",
+         fs=FS_S, ha="left")
+    note(ax, 1.85, 0.22,
+         "两条线在 0.51 附近相交：低于它，漏掉的攻击更多；高于它，误伤更多",
+         fs=FS_S, ha="left")
+
+    save(fig, "10/threshold_sweep.png")
+
+
+# ---------------------------------------------------------------- 11 样本量与区间
+
+def fig_11_sample_ci():
+    """第 11 章：置信区间随样本量收缩，比 5 个点要一千五百条。"""
+    import math
+
+    fig, ax = canvas(2.70)
+    x0, y0, w, h = 1.70, 1.55, 6.40, 3.40
+
+    def X(n):
+        return x0 + (math.log10(n) - 1.0) / 2.4 * w
+
+    ax.plot([x0, x0 + w], [y0, y0], color=GRAY, lw=0.9, zorder=2)
+    ax.plot([x0, x0], [y0, y0 + h], color=GRAY, lw=0.9, zorder=2)
+    for v in (0, 5, 10, 15, 20):
+        y = y0 + v / 20 * h
+        ax.plot([x0, x0 + w], [y, y], color=LGRAY, lw=0.6, zorder=1)
+        ax.plot([x0 - 0.10, x0], [y, y], color=GRAY, lw=0.7, zorder=2)
+        note(ax, x0 - 0.22, y, f"{v}", fs=FS_S, ha="right")
+
+    for n, lab in ((30, "30"), (100, "100"), (300, "300"),
+                   (1000, "1000"), (2000, "2000")):
+        ax.plot([X(n), X(n)], [y0, y0 - 0.10], color=GRAY, lw=0.7, zorder=2)
+        note(ax, X(n), y0 - 0.34, lab, fs=FS_S)
+
+    note(ax, x0 + w / 2, y0 - 0.62, "每条请求的样本量 n", fs=FS_S)
+    ax.text(x0 - 1.15, y0 + h / 2, "95% 区间半宽（百分点）", fontsize=FS_S,
+            color=GRAY, rotation=90, ha="center", va="center", zorder=8)
+
+    ns = [30, 45, 70, 110, 170, 260, 420, 700, 1100, 1600, 2400]
+    half = [196 * math.sqrt(0.4 * 0.6 / n) for n in ns]
+    ax.plot([X(n) for n in ns],
+            [y0 + min(v, 20) / 20 * h for v in half],
+            color=NAVY, lw=1.6, zorder=4, marker="o", ms=2.4)
+
+    y25 = y0 + 2.5 / 20 * h
+    ax.plot([x0, x0 + w], [y25, y25], color=RED, lw=0.9, ls=(0, (3, 2)),
+            zorder=3)
+    note(ax, x0 + 0.12, y25 + 0.30, "±2.5 点：才能分辨 40% 与 45%",
+         fs=FS_S, color=RED, ha="left")
+
+    for n, dv, dy in ((30, 17.5, 0.28), (100, 9.6, 0.28), (1500, 2.3, -0.30)):
+        txt(ax, X(n) + 0.13, y0 + dv / 20 * h + dy, f"±{dv:g}",
+            fs=FS_S - 0.2, color=NAVY, ha="left")
+
+    note(ax, 1.70, 0.52,
+         "半宽 = 1.96√(p(1−p)/n)，取 p=0.4；红线是“能分辨 5 个点”的门槛",
+         fs=FS_S, ha="left")
+    note(ax, 1.70, 0.24,
+         "从 100 条加到 1500 条，区间从 ±9.6 收到 ±2.3，样本量翻了十五倍",
+         fs=FS_S, ha="left")
+
+    save(fig, "11/sample_ci.png")
+
+
 FIGS = {
     "01": fig_01_attack_surface,
     "02": fig_02_template_decay,
@@ -592,6 +889,11 @@ FIGS = {
     "04b": fig_04_exfil,
     "05": fig_05_narrow_band,
     "06": fig_06_orthogonalize,
+    "06b": fig_06_layer_scan,
+    "05b": fig_05_dose,
+    "09": fig_09_mia_threshold,
+    "10b": fig_10_threshold_sweep,
+    "11b": fig_11_sample_ci,
     "10": fig_10_defense_stack,
     "11": fig_11_pipeline,
     "12": fig_12_modalities,

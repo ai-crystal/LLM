@@ -402,7 +402,7 @@ def fig_eval_landscape() -> None:
     label_at(ax, 4.20, 3.30, 2.65, 3.35, "竞技场", "人投票，偏爱长与好看", st.GOLD)
     label_at(ax, 8.40, 1.55, 8.40, 3.15, "私有评测", "自家数据，无法复现", st.RED)
 
-    save_png(fig, "18/eval-landscape.png")
+    save_png(fig, "19/eval-landscape.png")
 
 
 # ================================================================ 新增图
@@ -639,7 +639,7 @@ def fig_two_stage() -> None:
     ax.text(5.15, 0.62, "■", color=st.GOLD, fontsize=FS5S - 1.0, va="center")
     note5(ax, 5.54, 0.62, "计算单元大部分时间在等数据", fs=FS5S - 0.6, ha="left")
 
-    save5(fig, "17/two-stage.png")
+    save5(fig, "18/two-stage.png")
 
 
 
@@ -937,6 +937,187 @@ def fig_jailbreak() -> None:
     save5(fig, "21/jailbreak-defense.png")
 
 
+# ---------------------------------------------------------------- 图 16 上下文账单
+def fig_context_bill() -> None:
+    """读图顺序：
+    ① 两根轴都是对数尺，所以“长度翻十倍、钱翻十倍”画出来是一条直线；
+    ② 深蓝线是整份塞进去；浅蓝虚线是同样的整份、但命中前缀缓存；
+    ③ 金色横线是检索只取三段，与文档多长无关；
+    ④ 右侧竖箭头标出同一份 300K 文档的三档价钱。
+    """
+    st.setup()
+    fig, ax = plt.subplots(figsize=(W5, 2.95))
+    fig.subplots_adjust(left=0.105, right=0.975, top=0.945, bottom=0.185)
+
+    x = np.array([3, 10, 30, 100, 300])      # 千 token
+    whole = x * 0.008                        # 8 元 / 百万 token
+    cached = whole * 0.10
+    retr = np.full_like(whole, 0.024)
+
+    ax.plot(x, whole, color=st.NAVY, lw=1.5, marker="o", ms=3.6,
+            mfc="white", mew=1.0, zorder=4)
+    ax.plot(x[2:], cached[2:], color=st.NAVY_L, lw=1.2, ls=(0, (4, 2)),
+            marker="s", ms=2.8, mfc="white", mew=0.8, zorder=4)
+    ax.plot(x, retr, color=st.GOLD, lw=1.3, marker="^", ms=3.2,
+            mfc="white", mew=0.9, zorder=5)
+
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xticks(x)
+    ax.set_xticklabels(["3K", "10K", "30K", "100K", "300K"],
+                       fontsize=FS5S)
+    ax.set_xlim(2.5, 1500)
+    ax.set_ylim(0.015, 4.2)
+    ax.set_yticks([0.03, 0.1, 0.3, 1, 3])
+    ax.set_yticklabels(["0.03", "0.1", "0.3", "1", "3"])
+    ax.set_xlabel("一次送进去的上下文长度 / token", fontsize=FS5S + 0.6)
+    ax.set_ylabel("单次输入费 / 元", fontsize=FS5S + 0.6)
+    ax.tick_params(length=0, labelsize=FS5S)
+    ax.grid(axis="x", visible=False)
+
+    for xr, yr, lab, col in [(360, 2.40, "整份塞", st.NAVY),
+                             (360, 0.24, "整份＋缓存", st.NAVY_L),
+                             (360, 0.024, "检索三段", st.GOLD)]:
+        ax.text(xr, yr, lab, ha="left", va="center", fontsize=FS5S - 1.2,
+                color=col, zorder=6)
+
+    ax.text(2.8, 3.30, "两根轴都是对数尺：直线就是“成比例”", ha="left",
+            va="center", fontsize=FS5S - 1.2, color=st.GRAY)
+
+    save5(fig, "16/context-bill.png")
+
+
+# ---------------------------------------------------------------- 图 17 错误分层
+def fig_error_layers() -> None:
+    """读图顺序：
+    ① 四行是四类错误，从“你的问题”排到“服务端的问题”；
+    ② 中间是典型状态码；右侧是该不该重试；
+    ③ 底下一句：200 只说明这一跳通了。
+    """
+    fig, ax = canvas5(2.80)
+
+    txt5(ax, 1.80, 5.05, "哪一层出的问题", fs=FS5S + 0.2, color=st.NAVY,
+         weight="bold")
+    txt5(ax, 4.72, 5.05, "典型码", fs=FS5S + 0.2, color=st.NAVY,
+         weight="bold")
+    txt5(ax, 8.10, 5.05, "怎么做", fs=FS5S + 0.2, color=st.NAVY,
+         weight="bold")
+
+    rows = [
+        ("请求形状", "400 · 404", "不重试；改字段、核模型名", st.RED, 4.12),
+        ("身份与配额", "401 · 403 · 429", "换钥匙；429 才退避重试",
+         st.GOLD, 3.20),
+        ("内容策略", "200，没有正文", "看结束原因与拦截字段", st.TEAL, 2.28),
+        ("服务端", "500 · 529 · 断流", "重试，并切备用供应商", st.NAVY, 1.36),
+    ]
+    for name, code, act, col, y in rows:
+        st.box(ax, 0.30, y - 0.38, 3.00, 0.76, "", fc="#FFFFFF", ec=col,
+               lw=0.9)
+        txt5(ax, 1.80, y, name, fs=FS5S - 0.4, color=st.INK, weight="bold")
+
+        st.box(ax, 3.44, y - 0.38, 2.56, 0.76, "", fc=st.BG, ec=st.LGRAY,
+               lw=0.7)
+        txt5(ax, 4.72, y, code, fs=FS5S - 0.8, color=st.INK)
+
+        st.box(ax, 6.14, y - 0.38, 3.96, 0.76, "", fc="#FFFFFF", ec=st.LGRAY,
+               lw=0.7)
+        txt5(ax, 8.12, y, act, fs=FS5S - 0.8, color=st.INK)
+
+    st.arrow(ax, (0.62, 1.00), (0.62, 4.56), color=st.GRAY, lw=0.8, zorder=1)
+    note5(ax, 0.30, 0.74, "越往下越不怪你", fs=FS5S - 1.4, ha="left")
+    note5(ax, 0.30, 0.34, "200 只说明这一跳送到了；错误事件、"
+                          "半截回答、缺结束标记都在 200 之后",
+          fs=FS5S - 1.4, ha="left")
+
+    save5(fig, "17/error-layers.png")
+
+
+# ---------------------------------------------------------------- 图 20 自建与否
+def fig_build_vs_api() -> None:
+    """读图顺序：
+    ① 横轴是每天的请求数，纵轴是每月成本；
+    ② 蓝线是 API：过原点，按量付费；
+    ③ 两条横线是自建：只算卡、以及卡加一个人；
+    ④ 两个交点就是“该自己扛机器”的门槛。
+    """
+    st.setup()
+    fig, ax = plt.subplots(figsize=(W5, 2.78))
+    fig.subplots_adjust(left=0.115, right=0.972, top=0.945, bottom=0.185)
+
+    d = np.linspace(0, 100, 60)               # 千次 / 天
+    api = d * 0.99                            # 千元 / 月
+    ax.plot(d, api, color=st.NAVY, lw=1.5, zorder=4)
+    ax.axhline(15.3, color=st.GOLD, lw=1.2, ls=(0, (5, 3)), zorder=3)
+    ax.axhline(45.6, color=st.RED, lw=1.1, ls=(0, (2, 2)), zorder=3)
+
+    ax.set_xlim(0, 100)
+    ax.set_ylim(0, 100)
+    ax.set_xticks([0, 25, 50, 75, 100])
+    ax.set_yticks([0, 30, 60, 90])
+    ax.set_xlabel("每天请求数 / 千次", fontsize=FS5S + 0.6)
+    ax.set_ylabel("每月成本 / 千元", fontsize=FS5S + 0.6)
+    ax.tick_params(length=0, labelsize=FS5S)
+    ax.grid(axis="x", visible=False)
+
+    for xv, yv in [(15.5, 15.3), (46.0, 45.6)]:
+        ax.plot([xv, xv], [0, yv], color=st.GRAY, lw=0.7, ls=(0, (2, 2)))
+    ax.text(14.4, 2.2, "1.5 万次", fontsize=FS5S - 0.8, color=st.GRAY,
+            ha="right")
+    ax.text(45.1, 8.5, "4.6 万次", fontsize=FS5S - 0.8, color=st.GRAY,
+            ha="right")
+
+    ax.text(52, 5.5, "API：每千次 990 元\n一次三千 token 输入",
+            fontsize=FS5S - 1.2, color=st.NAVY, ha="left", va="center",
+            linespacing=1.6)
+    ax.text(2.0, 18.5, "自建：两张卡", fontsize=FS5S - 1.0, color=st.GOLD,
+            ha="left", va="bottom")
+    ax.text(2.0, 48.5, "自建＋一个人维护", fontsize=FS5S - 1.0, color=st.RED,
+            ha="left", va="bottom")
+    ax.text(2.0, 70.0, "交点左边租，右边才值得自己扛", fontsize=FS5S - 1.2,
+            color=st.GRAY, ha="left", va="center")
+
+    save5(fig, "20/build-vs-api.png")
+
+
+# ---------------------------------------------------------------- 图 22 生态分层
+def fig_ecosystem_stack() -> None:
+    """读图顺序：
+    ① 五层从下往上：芯片 → 框架 → 模型 → 工具 → 应用；
+    ② 每层左边是名字，中间是这一层在做什么，右边落在哪几章；
+    ③ 越往下越接近物理，越往上越接近业务。
+    """
+    fig, ax = canvas5(3.35)
+
+    rows = [
+        ("应用", "客服 · 审阅 · 编码助手", "入门 / 应用", st.NAVY, 5.60),
+        ("工具与中间层", "检索 · MCP · 评测集", "应用 / 评测", st.NAVY_L,
+         4.42),
+        ("模型", "闭源接口 · 开放权重", "基础 / 对齐 / 安全 / 多模态",
+         st.TEAL, 3.24),
+        ("训练与推理框架", "并行切分 · 批调度 · 量化", "结构 / 推理部署",
+         st.GOLD, 2.06),
+        ("芯片与集群", "加速卡 · 网络 · 机房", "数据与规模 / 训练工程",
+         st.GRAY, 0.88),
+    ]
+    for name, what, ref, col, ytop in rows:
+        st.box(ax, 0.34, ytop, 2.30, 0.94, "", fc=col, ec=col, lw=0.8)
+        txt5(ax, 1.49, ytop + 0.47, name, fs=FS5S - 0.4, color="white",
+             weight="bold")
+        st.box(ax, 2.82, ytop, 7.28, 0.94, "", fc="#FFFFFF", ec=st.LGRAY,
+               lw=0.7)
+        note5(ax, 3.04, ytop + 0.47, what, fs=FS5S - 0.4, color=st.INK,
+              ha="left")
+        note5(ax, 9.92, ytop + 0.47, ref, fs=FS5S - 1.8, ha="right")
+
+    st.arrow(ax, (0.18, 0.98), (0.18, 6.42), color=st.GRAY, lw=0.8)
+    note5(ax, 0.38, 0.42, "越往下越接近物理，越往上越接近业务",
+          fs=FS5S - 1.4, ha="left")
+    note5(ax, 10.10, 0.42, "同一册会横跨两层，按章分开看",
+          fs=FS5S - 1.4, ha="right")
+
+    save5(fig, "22/ecosystem-stack.png")
+
+
 if __name__ == "__main__":
     fig_generation_loop()
     fig_training_stages()
@@ -953,4 +1134,8 @@ if __name__ == "__main__":
     fig_context_cost()
     fig_ecosystem()
     fig_jailbreak()
+    fig_context_bill()
+    fig_error_layers()
+    fig_build_vs_api()
+    fig_ecosystem_stack()
     print("done.")

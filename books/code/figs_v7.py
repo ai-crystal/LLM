@@ -602,11 +602,11 @@ def fig_03_chunked():
     # 整块
     txt(ax, 0.55, 4.32, "整块", fs=FS, weight="bold", ha="left")
     note(ax, 0.55, 4.06, "一次吃掉 1.6 秒", fs=FS_S - 0.4, ha="left")
-    bar(3.30, 0, 1600, 0.46, NAVY, 0.26)
-    txt(ax, x0 + 760 * k, 3.53, "16000 token 预填充", fs=FS_S, color=INK)
+    bar(3.44, 0, 1600, 0.46, NAVY, 0.26)
+    txt(ax, x0 + 760 * k, 3.67, "16000 token 预填充", fs=FS_S, color=INK)
     for i in range(10):
         bar(3.02, 1605 + i * 9.5, 1605 + i * 9.5 + 3.2, 0.14, GOLD, 0.55)
-    note(ax, x0 + 1596 * k, 3.08, "恢复出字", fs=FS_S - 0.8, color=GOLD,
+    note(ax, x0 + 1590 * k, 3.24, "恢复出字", fs=FS_S - 0.8, color=GOLD,
          ha="right")
     ax.annotate("", xy=(x0, 2.80), xytext=(x0 + 1600 * k, 2.80),
                 arrowprops=dict(arrowstyle="<|-|>", color=RED, lw=0.7,
@@ -701,7 +701,7 @@ def fig_07_spec_gain():
     ax.tick_params(length=2, pad=1.5)
     ax.legend(frameon=False, loc="upper right", handlelength=1.3,
               borderpad=0.1, labelspacing=0.3, fontsize=FS_S - 0.8)
-    txt(ax, 15.4, 1.62, "拐点约 18", fs=FS_S - 0.8, color=RED, ha="right",
+    txt(ax, 15.0, 3.02, "拐点约 18", fs=FS_S - 0.8, color=RED, ha="right",
         rotation=90)
     txt(ax, 26, 0.86, "净加速 < 1", fs=FS_S - 0.8, color=RED, ha="center",
         va="top")
