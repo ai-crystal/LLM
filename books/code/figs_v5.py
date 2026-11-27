@@ -15,6 +15,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+import numpy as np
 from matplotlib.colors import to_rgb
 
 import figstyle as st
@@ -61,6 +62,15 @@ def txt(ax, x, y, s, fs=FS, color=INK, ha="center", va="center",
 def note(ax, x, y, s, fs=FS_S, color=GRAY, ha="center", va="center", **kw):
     return ax.text(x, y, s, fontsize=fs, color=color, ha=ha, va=va,
                    zorder=8, linespacing=1.45, **kw)
+
+
+def plotcanvas(h_in: float, bottom=0.17):
+    """带坐标轴的画布，同样固定宽度 5.2 in。"""
+    setup()
+    fig = plt.figure(figsize=(W, h_in))
+    fig.patch.set_facecolor("white")
+    ax = fig.add_axes([0.105, bottom, 0.875, 0.80 - bottom + 0.10])
+    return fig, ax
 
 
 def save(fig, rel: str):
@@ -301,12 +311,274 @@ def fig_11_async():
     save(fig, "11/async.png")
 
 
+# ---------------------------------------------------------------- 02 数据流水线
+
+def fig_02_data():
+    """第 2 章：三段流水线与每段的留存率。"""
+    fig, ax = canvas(2.62)
+
+    note(ax, 5.20, 5.02, "一万二千条示范，是从十万条原始数据里筛出来的")
+
+    cols = [
+        ("① 采集", "100,000 条", NAVY, 0.10,
+         ["真实流量 60%", "强模型 30%", "人写 10% 定标准"]),
+        ("② 过滤", "23,000 条", TEAL, 0.12,
+         ["模板统一留 62%", "去重又留 66%", "核对又留 90%"]),
+        ("③ 配比", "12,000 条", GOLD, 0.14,
+         ["20 个任务桶", "3 档目标长度", "拒答样本 12%"]),
+    ]
+    bw, bh = 3.05, 2.02
+    xs = [0.34, 3.66, 6.98]
+    for (head, num, color, f, lines), x in zip(cols, xs):
+        box(ax, x, 2.22, bw, 2.12, "", fc=tint(color, f), ec=color, lw=0.9)
+        txt(ax, x + 0.20, 4.10, head, fs=FS + 0.4, ha="left", weight="bold")
+        txt(ax, x + 0.20, 3.74, num, fs=FS + 2.6, ha="left", color=color)
+        ax.plot([x + 0.20, x + bw - 0.20], [3.54, 3.54], color=color, lw=0.6)
+        for k, line in enumerate(lines):
+            note(ax, x + 0.20, 3.14 - k * 0.36, line, fs=FS_S, ha="left")
+
+    for i in range(2):
+        arrow(ax, (xs[i] + bw + 0.03, 3.30), (xs[i + 1] - 0.03, 3.30), lw=1.0)
+        mid = (xs[i] + bw + xs[i + 1]) / 2
+        note(ax, mid, 3.56, "×0.23" if i == 0 else "×0.52", fs=FS_S - 0.4)
+
+    note(ax, 5.20, 1.94, "留存率 23% 看着亏，它换来的是两件事", fs=FS_S)
+    for k, line in enumerate([
+            "一个 epoch 只有 480 万 token，单卡约半小时；",
+            "每一桶的配比可控，不靠运气。"]):
+        note(ax, 0.42, 1.46 - k * 0.38, line, fs=FS_S, ha="left")
+
+    note(ax, 5.20, 0.50, "先筛再混：十万条直接混着训，配比是筛不动的")
+
+    save(fig, "02/data_pipeline.png")
+
+
+# ---------------------------------------------------------------- 04 偏好对
+
+def fig_04_pairs():
+    """第 4 章：从 4000 条提示到 5600 对可用偏好数据。"""
+    fig, ax = canvas(2.62)
+
+    note(ax, 5.20, 5.04, "一对偏好数据要过四道手，才配进训练集")
+
+    steps = [
+        ("提示", "4,000", "真实流量抽取"),
+        ("回答", "12,000", "每条采 3 个"),
+        ("候选对", "8,000", "同长度档配对"),
+        ("可用对", "5,600", "一致率筛过"),
+    ]
+    bw, bh = 2.14, 1.70
+    xs = [0.28, 2.72, 5.16, 7.60]
+    for (head, num, sub), x in zip(steps, xs):
+        box(ax, x, 2.60, bw, bh, "", fc=tint(NAVY, 0.09), ec=NAVY_L)
+        txt(ax, x + bw / 2, 3.94, head, fs=FS, weight="bold")
+        txt(ax, x + bw / 2, 3.40, num, fs=FS + 3.0, color=NAVY)
+        note(ax, x + bw / 2, 2.88, sub, fs=FS_S - 0.6)
+    for i in range(3):
+        arrow(ax, (xs[i] + bw + 0.03, 3.44), (xs[i + 1] - 0.03, 3.44))
+
+    note(ax, 5.20, 2.16, "标注量按“对”算，成本按“判断”算", fs=FS_S)
+    rows = [
+        "8,000 对 × 2 人 × 2 个顺序 = 32,000 次判断",
+        "每次 3.5 分钟 → 1,867 小时 ≈ 0.93 人年",
+        "按 20 美元/小时 → 约 3.7 万美元",
+    ]
+    for k, line in enumerate(rows):
+        note(ax, 0.42, 1.72 - k * 0.38, line, fs=FS_S, ha="left")
+
+    note(ax, 5.20, 0.40, "一致率 75% 不是标注员的水平，是任务本身的模糊度")
+
+    save(fig, "04/pairs.png")
+
+
+# ---------------------------------------------------------------- 05 四模型
+
+def fig_05_models():
+    """第 5 章：PPO 的四份权重，谁训练、谁冻结、每 batch 调几次。"""
+    fig, ax = canvas(2.62)
+
+    note(ax, 5.20, 4.92, "四份权重同时在场，只有两份在存梯度")
+    note(ax, 5.20, 4.52, "箭头是每次更新要跑的前向；μ 是同一批数据的复用遍数",
+         fs=FS_S - 0.6)
+
+    box(ax, 0.40, 1.62, 2.45, 1.30, "", fc=tint(NAVY, 0.14), ec=NAVY, lw=1.0)
+    txt(ax, 1.625, 2.62, "策略 πθ", fs=FS + 1.2, weight="bold")
+    note(ax, 1.625, 2.26, "训练中", fs=FS_S)
+    note(ax, 1.625, 1.92, "采样、生成", fs=FS_S)
+
+    boxes = [
+        (3.48, "奖励模型 rφ", "冻结", "每 batch 1 次前向", TEAL),
+        (2.50, "参考模型 πref", "冻结", "复用 μ 次", GOLD),
+        (1.52, "价值模型 Vψ", "训练中", "复用 μ 次", RED),
+    ]
+    for y, name, tag, calls, color in boxes:
+        box(ax, 5.55, y - 0.30, 3.05, 0.60, "", fc=tint(color, 0.11), ec=color)
+        txt(ax, 5.70, y + 0.13, name, fs=FS_S + 0.4, ha="left")
+        note(ax, 5.70, y - 0.14, tag + "　" + calls, fs=FS_S - 0.6, ha="left")
+        arrow(ax, (2.90, y), (5.50, y), lw=0.8, style="<|-|>")
+
+    note(ax, 4.20, 3.62, "y 与 r", fs=FS_S - 0.6)
+    note(ax, 4.20, 2.64, "逐 token 概率", fs=FS_S - 0.6)
+    note(ax, 4.20, 1.66, "前缀与优势", fs=FS_S - 0.6)
+
+    note(ax, 5.20, 0.94, "四份都训要 448 GB：56 权重 + 56 梯度 + 336 优化器")
+    note(ax, 5.20, 0.56, "冻结两份只要 252 GB，省下的全是梯度与优化器状态",
+         fs=FS_S)
+
+    save(fig, "05/four_models.png")
+
+
+# ---------------------------------------------------------------- 06 log ratio
+
+def fig_06_logratio():
+    """第 6 章：log-ratio 的分布，以及 β 把 margin 推到哪个区间。"""
+    fig = plt.figure(figsize=(W, 2.45))
+    fig.patch.set_facecolor("white")
+    setup()
+    ax1 = fig.add_axes([0.095, 0.24, 0.40, 0.635])
+    ax2 = fig.add_axes([0.605, 0.24, 0.375, 0.635])
+
+    x = np.linspace(-9, 10, 400)
+    for mu, sd, color, lab in [(-1.4, 2.4, RED, "落选回答"),
+                               (4.0, 1.6, GREEN, "选中回答")]:
+        y = np.exp(-0.5 * ((x - mu) / sd) ** 2) / (sd * np.sqrt(2 * np.pi))
+        ax1.fill_between(x, y, color=tint(color, 0.18), alpha=0.9, lw=0)
+        ax1.plot(x, y, color=color, lw=1.0)
+        ax1.plot([mu, mu], [0, np.exp(0) / (sd * np.sqrt(2 * np.pi)) * 0.92],
+                 color=color, lw=0.7, ls=":")
+        ax1.text(mu, np.exp(0) / (sd * np.sqrt(2 * np.pi)) + 0.015, lab,
+                 fontsize=FS_S - 0.4, color=color, ha="center", va="bottom")
+
+    ax1.set_xlim(-9, 10)
+    ax1.set_ylim(0, 0.42)
+    ax1.set_yticks([])
+    ax1.set_xlabel("整条回答的 log ratio", fontsize=FS_S)
+    ax1.set_title("分差 5.4：200 token 长的回答", fontsize=FS_S + 0.3, color=INK)
+    ax1.grid(axis="y", visible=False)
+
+    z = np.logspace(-2, 1, 200)
+    loss = np.log1p(np.exp(-z))
+    ax2.plot(z, loss, color=NAVY, lw=1.2)
+    ax2.set_xscale("log")
+    ax2.set_xlim(0.02, 10)
+    ax2.set_ylim(0, 0.78)
+    ax2.set_xlabel("margin = β × 5.4", fontsize=FS_S)
+    ax2.set_ylabel("损失", fontsize=FS_S)
+    ax2.set_title("同一份数据，三个 β", fontsize=FS_S + 0.3, color=INK)
+
+    marks = [(0.054, "β=0.01", 0.095, 0.545, "left"),
+             (0.54, "β=0.1", 0.74, 0.46, "left"),
+             (5.4, "β=1", 1.25, 0.235, "right")]
+    for zv, lab, tx, ty, ha in marks:
+        lv = np.log1p(np.exp(-zv))
+        ax2.plot([zv], [lv], "o", ms=3.4, color=RED, zorder=5)
+        ax2.text(tx, ty, f"{lab}\n{lv:.2f}", fontsize=FS_S - 1.2, color=GRAY,
+                 ha=ha, va="center")
+
+    fig.text(0.5, 0.035, "β 的作用是把分差压进 0.5 到 2 这一段，太快太慢都没有梯度",
+             fontsize=FS_S, color=GRAY, ha="center")
+
+    save(fig, "06/logratio.png")
+
+
+# ---------------------------------------------------------------- 07 组内标准差
+
+def fig_07_std():
+    """第 7 章：组内归一化算出的优势，随通过率怎么变。"""
+    fig, ax = plotcanvas(2.42, bottom=0.225)
+
+    p = np.linspace(0.035, 0.965, 400)
+    a_ok = np.sqrt((1 - p) / p)
+    a_bad = np.sqrt(p / (1 - p))
+    ax.plot(p, a_ok, color=GREEN, lw=1.2, label="答对样本的优势")
+    ax.plot(p, a_bad, color=RED, lw=1.2, label="答错样本的优势")
+
+    ks = np.arange(1, 8) / 8
+    ax.plot(ks, np.sqrt((1 - ks) / ks), "o", ms=3.2, color=GREEN, zorder=5)
+    ax.plot(ks, np.sqrt(ks / (1 - ks)), "o", ms=3.2, color=RED, zorder=5)
+
+    ax.axvspan(0.2, 0.8, color=tint(GOLD, 0.13), zorder=0)
+    ax.text(0.5, 0.12, "可用区", fontsize=FS_S - 0.6, color=GOLD, ha="center")
+    ax.axvline(0.5, color=GRAY, lw=0.6, ls=":")
+
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 3.4)
+    ax.set_xlabel("组内通过率 p（G = 8）", fontsize=FS_S)
+    ax.set_ylabel("|A|", fontsize=FS_S)
+    ax.set_title("优势随通过率的两端翘起，梯度却越来越不可信",
+                 fontsize=FS_S + 0.4, color=INK, pad=6)
+    ax.legend(frameon=False, fontsize=FS_S - 0.8, loc="upper center")
+    ax.text(0.055, 2.95, "p = 1/8\n只有一条正样本", fontsize=FS_S - 1.0,
+            color=GRAY, ha="left", va="top")
+    ax.text(0.955, 2.95, "p = 7/8\n只有一条负样本", fontsize=FS_S - 1.0,
+            color=GRAY, ha="right", va="top")
+    ax.tick_params(labelsize=FS_S - 0.8)
+
+    fig.text(0.5, 0.028, "p = 0 或 1 时标准差为 0，整组优势为零：这类题白采",
+             fontsize=FS_S - 0.4, color=GRAY, ha="center")
+
+    save(fig, "07/group_std.png")
+
+
+# ---------------------------------------------------------------- 10 轨迹时间线
+
+def fig_10_timeline():
+    """第 10 章：一条 20 步轨迹的时间构成与上下文增长。"""
+    fig = plt.figure(figsize=(W, 2.55))
+    fig.patch.set_facecolor("white")
+    setup()
+    ax = fig.add_axes([0.105, 0.235, 0.855, 0.63])
+    ax2 = ax.twinx()
+
+    tool = [0.2, 3.5, 0.2, 0.2, 3.2, 0.2, 0.2, 0.3, 2.8, 0.2,
+            0.2, 0.2, 0.3, 3.4, 0.2, 0.2, 2.9, 0.2, 0.2, 3.1]
+    gen = [0.6] * 20
+    idx = np.arange(1, 21)
+    ax.bar(idx, gen, color=tint(NAVY, 0.55), edgecolor=NAVY, lw=0.5, label="生成", width=0.66)
+    ax.bar(idx, tool, bottom=gen, color=tint(GOLD, 0.45), edgecolor=GOLD,
+           lw=0.5, label="工具执行", width=0.66)
+
+    ctx = 400 + np.cumsum(gen) * 0 + np.array(
+        [120] * 20) + np.cumsum(np.array(tool) * 260)
+    ax2.plot(idx, ctx / 1000, color=RED, lw=1.1, marker="o", ms=2.2,
+             label="上下文")
+    ax2.set_ylim(0, 9.2)
+    ax2.set_yticks([0, 3, 6, 9])
+    ax2.set_ylabel("上下文 / 千 token", fontsize=FS_S - 0.4, color=RED)
+    ax2.tick_params(axis="y", labelsize=FS_S - 0.8, colors=RED)
+    ax2.spines["right"].set_color(RED)
+
+    tg = sum(gen)
+    tt = sum(tool)
+    ax.set_xlim(0.3, 20.7)
+    ax.set_ylim(0, 4.3)
+    ax.set_xlabel("轨迹步数", fontsize=FS_S)
+    ax.set_ylabel("单步墙钟 / 秒", fontsize=FS_S)
+    ax.tick_params(labelsize=FS_S - 0.8)
+    ax.set_xticks([1, 5, 10, 15, 20])
+    ax.legend(frameon=False, fontsize=FS_S - 0.9, loc="upper right", ncol=3,
+              bbox_to_anchor=(1.0, 1.16))
+
+    fig.text(0.5, 0.035,
+             f"{tg:.0f} 秒生成与 {tt:.0f} 秒工具：工具占 {tt / (tg + tt):.0%}，"
+             "采样时间是环境决定的",
+             fontsize=FS_S, color=GRAY, ha="center")
+
+    save(fig, "10/timeline.png")
+
+
 FIGS = {
     "01": fig_01_pipeline,
+    "02": fig_02_data,
     "03": fig_03_taxonomy,
+    "04": fig_04_pairs,
     "05": fig_05_batch,
+    "05b": fig_05_models,
+    "06": fig_06_logratio,
     "07": fig_07_grpo,
+    "07b": fig_07_std,
     "10": fig_10_mask,
+    "10b": fig_10_timeline,
     "11": fig_11_async,
 }
 

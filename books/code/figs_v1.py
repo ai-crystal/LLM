@@ -642,6 +642,301 @@ def fig_two_stage() -> None:
     save5(fig, "17/two-stage.png")
 
 
+
+
+# ---------------------------------------------------------------- 图 10 采样温度
+def fig_sampling_temperature() -> None:
+    """读图顺序：
+    ① 五行是同一个上文的五个候选，分数从高到低；
+    ② 左列低温：概率几乎全压在第一名；右列高温：长尾也留了门；
+    ③ 最下一排是各抽五次的结果。
+    """
+    fig, ax = canvas5(2.62)
+
+    names = ["好", "热", "不错", "冷", "转账"]
+    lo = [0.86, 0.10, 0.03, 0.008, 0.002]
+    hi = [0.42, 0.25, 0.19, 0.10, 0.04]
+    ys = [4.42, 3.75, 3.08, 2.41, 1.74]
+    scale = 2.30
+
+    txt5(ax, 2.55, 5.02, "温度 0.2", fs=FS5 + 0.2, weight="bold")
+    note5(ax, 2.55, 4.72, "保守：几乎总选第一", fs=FS5S - 0.4)
+    txt5(ax, 7.25, 5.02, "温度 1.0", fs=FS5 + 0.2, weight="bold")
+    note5(ax, 7.25, 4.72, "放开：长尾也有机会", fs=FS5S - 0.4)
+
+    lotext = ["86%", "10%", "3.0%", "0.8%", "0.2%"]
+    for n, pl, ph, y, lt in zip(names, lo, hi, ys, lotext):
+        note5(ax, 2.18, y, n, fs=FS5, ha="right", color=st.INK)
+        wl = max(pl * scale, 0.03)
+        ax.add_patch(mpatches.Rectangle((2.30, y - 0.18), wl, 0.36,
+                                        facecolor=st.NAVY_XL,
+                                        edgecolor=st.NAVY_L, lw=0.6, zorder=3))
+        note5(ax, 2.30 + wl + 0.10, y, lt, fs=FS5S - 0.5,
+              ha="left", color=st.INK)
+
+        wh = max(ph * scale, 0.03)
+        ax.add_patch(mpatches.Rectangle((7.00, y - 0.18), wh, 0.36,
+                                        facecolor=st.GOLD_L,
+                                        edgecolor=st.GOLD, lw=0.6, zorder=3))
+        note5(ax, 7.00 + wh + 0.10, y, f"{ph * 100:.0f}%",
+              fs=FS5S - 0.5, ha="left", color=st.INK)
+
+    note5(ax, 2.30, 1.26, "下面两个几乎抽不到，\n但“几乎”不等于“不会”",
+          fs=FS5S - 0.6, ha="left")
+
+    txt5(ax, 0.30, 0.72, "抽五次", fs=FS5S, ha="left")
+    picks_lo = ["好", "好", "好", "好", "好"]
+    picks_hi = ["好", "热", "好", "冷", "热"]
+    for i, (a, b) in enumerate(zip(picks_lo, picks_hi)):
+        st.box(ax, 1.62 + i * 0.62, 0.54, 0.52, 0.36, "", fc="#FFFFFF",
+               ec=st.NAVY_L, lw=0.7)
+        txt5(ax, 1.88 + i * 0.62, 0.72, a, fs=FS5S - 1.0, color=st.NAVY)
+        st.box(ax, 6.30 + i * 0.62, 0.54, 0.52, 0.36, "", fc="#FFFFFF",
+               ec=st.GOLD, lw=0.7)
+        txt5(ax, 6.56 + i * 0.62, 0.72, b, fs=FS5S - 1.0, color=st.GOLD)
+    note5(ax, 3.55, 0.26, "同一个上文，五次一样", fs=FS5S - 1.0)
+    note5(ax, 8.05, 0.26, "同一个上文，三次不同", fs=FS5S - 1.0)
+
+    save5(fig, "01/sampling-temperature.png")
+
+
+# ---------------------------------------------------------------- 图 11 数据漏斗
+def fig_data_funnel() -> None:
+    """读图顺序：
+    ① 五级台阶从上到下，宽度按字节数的对数画；
+    ② 右侧是这一步之后的量；③ 底下一句结论。
+    """
+    fig, ax = canvas5(2.95)
+
+    stages = [
+        ("抓取网页", "100 亿个页面，含 HTML", "10 PB", 8.65, st.NAVY_XL),
+        ("抽出正文", "只留文字，扔掉标签脚本", "150 TB", 5.05, "#B7C6DE"),
+        ("去重", "转载、镜像、模板页归并", "90 TB", 4.55, st.NAVY_L),
+        ("质量筛选", "只留打分靠前的三成", "27 TB", 3.35, st.NAVY),
+        ("转成 token", "体积几乎不变，单位换了", "13.5 万亿", 3.35, st.GOLD),
+    ]
+    ytop = 5.24
+    for i, (name, sub, val, wdt, color) in enumerate(stages):
+        y = ytop - i * 0.86
+        ax.add_patch(mpatches.Rectangle((0.45, y - 0.52), wdt, 0.62,
+                                        facecolor=color, edgecolor="none",
+                                        zorder=3))
+        dark = color in (st.NAVY, st.GOLD, st.NAVY_L)
+        txt5(ax, 0.68, y - 0.04, name, fs=FS5, ha="left",
+             color="white" if dark else st.INK, weight="bold")
+        note5(ax, 0.68, y - 0.32, sub, fs=FS5S - 1.0, ha="left",
+              color="#E9ECF1" if dark else st.GRAY)
+        note5(ax, 0.45 + wdt + 0.18, y - 0.18, val, fs=FS5S, ha="left",
+              color=st.INK, weight="bold")
+
+    for i in range(4):
+        y0 = ytop - i * 0.86 - 0.52
+        st.arrow(ax, (0.62, y0 - 0.02), (0.62, y0 - 0.20), color=st.GRAY, lw=0.7)
+
+    note5(ax, 0.45, 0.66, "宽度按对数画：从 10 PB 到 150 TB 已经是一百倍",
+          fs=FS5S - 0.8, ha="left")
+    note5(ax, 10.05, 0.66, "最终约为初始体量的千分之一", fs=FS5S - 0.8,
+          ha="right", color=st.GOLD)
+
+    save5(fig, "04/data-funnel.png")
+
+
+# ---------------------------------------------------------------- 图 12 显存
+def fig_params_memory() -> None:
+    """读图顺序：
+    ① 上表：参数量乘精度，就是权重的 GB 数；红框是装不进一张 80 GB 卡的格子；
+    ② 下段：每个并发请求还要按上下文长度另占一份缓存。
+    """
+    fig, ax = canvas5(3.32)
+
+    cols = [("16 位", 2.55), ("8 位", 4.75), ("4 位", 6.95)]
+    for name, x in cols:
+        txt5(ax, x + 1.00, 5.92, name, fs=FS5S, color=st.GRAY)
+
+    rows = [("7B", 14, 7, 3.5), ("70B", 140, 70, 35), ("405B", 810, 405, 202)]
+    ys = [5.02, 4.22, 3.42]
+    for (name, a, b, c), y in zip(rows, ys):
+        note5(ax, 2.35, y, name, fs=FS5, ha="right", color=st.INK)
+        for val, (_, x) in zip((a, b, c), cols):
+            big = val > 80
+            st.box(ax, x, y - 0.28, 2.00, 0.56, "", fc="#FFFFFF",
+                   ec=st.RED if big else st.LGRAY, lw=0.8)
+            txt5(ax, x + 1.00, y, f"{val:g} GB", fs=FS5 - 0.3,
+                 color=st.RED if big else st.INK)
+
+    note5(ax, 5.00, 2.94, "红框：一张 80 GB 卡装不下，要切开或换精度",
+          fs=FS5S - 0.8, ha="center", color=st.RED)
+
+    ax.plot([0.45, 10.05], [2.72, 2.72], color=st.LGRAY, lw=0.7, zorder=2)
+    txt5(ax, 0.45, 2.46, "每个并发请求，还要按长度占一份缓存",
+         fs=FS5S + 0.1, ha="left", weight="bold")
+    note5(ax, 10.05, 2.46, "320 KB / token", fs=FS5S - 0.6, ha="right",
+          color=st.GOLD)
+
+    kvs = [("8K", "2.6 GB", 1.10), ("32K", "10.2 GB", 2.55),
+           ("128K", "41 GB", 4.95)]
+    for i, (lab, val, wdt) in enumerate(kvs):
+        y = 1.86 - i * 0.50
+        note5(ax, 1.35, y, lab, fs=FS5S, ha="right", color=st.INK)
+        ax.add_patch(mpatches.Rectangle((1.45, y - 0.14), wdt, 0.28,
+                                        facecolor=st.GOLD_L, edgecolor=st.GOLD,
+                                        lw=0.6, zorder=3))
+        note5(ax, 1.55 + wdt, y, val, fs=FS5S - 0.4, ha="left")
+
+    note5(ax, 7.30, 1.40, "70B 的 4 位权重占 35 GB，\n"
+                          "80 GB 卡剩 45 GB：\n"
+                          "一万上下文开 14 个，\n"
+                          "三万二千只能开 4 个",
+          fs=FS5S - 0.9, ha="left")
+
+    save5(fig, "08/params-memory.png")
+
+
+# ---------------------------------------------------------------- 图 13 上下文成本
+def fig_context_cost() -> None:
+    """读图顺序：
+    ① 横轴是对数尺的上下文长度；② 蓝线是首字延迟，随长度线性涨；
+    ③ 灰线是放在中间那段信息的命中率（示意），越靠右越低；
+    ④ 竖虚线是“检索取三段”的位置：延迟只剩一个零头。
+    """
+    st.setup()
+    fig, ax = plt.subplots(figsize=(W5, 2.90))
+    fig.subplots_adjust(left=0.105, right=0.885, top=0.955, bottom=0.175)
+
+    x = np.array([1, 3, 8, 32, 128])
+    delay = x * 0.13
+    recall = [0.96, 0.92, 0.86, 0.74, 0.61]
+
+    ax.plot(x, delay, color=st.NAVY, lw=1.5, marker="o", ms=4.0,
+            mfc="white", mew=1.0, zorder=4)
+    ax.set_xscale("log")
+    ax.set_xticks(x)
+    ax.set_xticklabels([f"{v}K" for v in x], fontsize=FS5S)
+    ax.set_xlabel("上下文长度 / token", fontsize=FS5S + 0.5, color=st.INK)
+    ax.set_ylim(0, 19)
+    ax.set_yticks([0, 5, 10, 15])
+    ax.set_ylabel("首字延迟 / 秒", fontsize=FS5S + 0.5, color=st.NAVY)
+    ax.grid(axis="x", visible=False)
+    ax.tick_params(axis="both", length=0, labelsize=FS5S)
+
+    for xi, yi in zip(x, delay):
+        ax.text(xi, yi + 0.9, f"{yi:g}s", ha="center", va="bottom",
+                fontsize=FS5S - 0.8, color=st.NAVY, zorder=5)
+
+    ax2 = ax.twinx()
+    ax2.plot(x, recall, color=st.GRAY, lw=1.2, ls=(0, (4, 2)), marker="s",
+             ms=3.2, mfc="white", mew=0.8, zorder=3)
+    ax2.set_ylim(0.4, 1.02)
+    ax2.set_yticks([0.5, 0.7, 0.9])
+    ax2.set_yticklabels(["50%", "70%", "90%"], fontsize=FS5S, color=st.GRAY)
+    ax2.set_ylabel("中间位置信息的命中率", fontsize=FS5S, color=st.GRAY,
+                   labelpad=4)
+    ax2.spines["right"].set_visible(True)
+    ax2.spines["top"].set_visible(False)
+    ax2.tick_params(length=0)
+    ax2.grid(False)
+
+    ax.axvline(3, color=st.GOLD, lw=0.9, ls=(0, (3, 2)), zorder=1)
+    ax.annotate("检索只取三段\n≈3K token，0.4 秒", xy=(3, 0.55),
+                xytext=(4.3, 6.6), fontsize=FS5S - 0.6, color=st.GOLD,
+                linespacing=1.6,
+                arrowprops=dict(arrowstyle="-|>", lw=0.7, color=st.GOLD))
+    ax.annotate("整份塞进去\n22 万 token，29 秒", xy=(128, 16.6),
+                xytext=(13.0, 12.4), fontsize=FS5S - 0.6, color=st.NAVY,
+                linespacing=1.6, ha="left",
+                arrowprops=dict(arrowstyle="-|>", lw=0.7, color=st.NAVY_L))
+    ax.annotate("越靠中间越容易被漏掉", xy=(128, 0.66), xytext=(12.0, 2.9),
+                fontsize=FS5S - 0.6, color=st.GRAY, ha="left",
+                arrowprops=dict(arrowstyle="-|>", lw=0.6, color=st.GRAY))
+
+
+    save5(fig, "09/context-cost.png")
+
+
+# ---------------------------------------------------------------- 图 14 生态
+def fig_ecosystem() -> None:
+    """读图顺序：
+    ① 三列是三种拿法；② 四行是“给了你什么”，实心表示给；
+    ③ 最后一排是你能做的事。多数“开源”只填了第一格。
+    """
+    fig, ax = canvas5(2.72)
+
+    cols = [("闭源 API", 1.95), ("开放权重", 4.85), ("完全开源", 7.75)]
+    for name, x in cols:
+        txt5(ax, x + 1.30, 5.02, name, fs=FS5 + 0.2, weight="bold")
+
+    rows = [("权重", 4.26), ("训练代码", 3.66), ("数据配比", 3.06),
+            ("数据集", 2.46)]
+    fills = [[0, 0, 0, 0], [1, 0, 0, 0], [1, 1, 1, 1]]
+    for name, y in rows:
+        note5(ax, 1.80, y, name, fs=FS5S, ha="right", color=st.INK)
+
+    for ci, (_, x) in enumerate(cols):
+        for ri, (_, y) in enumerate(rows):
+            on = fills[ci][ri]
+            ax.add_patch(mpatches.Rectangle((x + 1.13, y - 0.17), 0.34, 0.34,
+                                            facecolor=st.NAVY if on else "#FFFFFF",
+                                            edgecolor=st.NAVY if on else st.LGRAY,
+                                            lw=0.7, zorder=3))
+        note5(ax, x + 1.30, 1.76, "你能做", fs=FS5S - 1.4, color=st.GRAY)
+
+    notes = ["只能调接口", "微调·量化·合并", "复现训练"]
+    for (_, x), n in zip(cols, notes):
+        st.box(ax, x + 0.10, 1.06, 2.40, 0.50, "", fc="#FFFFFF",
+               ec=st.LGRAY, lw=0.7)
+        txt5(ax, x + 1.30, 1.31, n, fs=FS5S - 0.6)
+
+    note5(ax, 5.20, 0.60, "叫“开源”的模型，九成以上只填了第一行的第一格",
+          fs=FS5S - 0.6, color=st.GOLD)
+
+    save5(fig, "20/ecosystem.png")
+
+
+# ---------------------------------------------------------------- 图 15 越狱与防御
+def fig_jailbreak() -> None:
+    """读图顺序：
+    ① 每行是一次攻击、它主要打哪一层、那一层的防线；
+    ② 从上往下，防线从“模型自己”移到“系统外面”，越往下越硬。
+    """
+    fig, ax = canvas5(3.10)
+
+    txt5(ax, 1.72, 5.60, "攻", fs=FS5S + 0.8, color=st.RED, weight="bold")
+    txt5(ax, 5.20, 5.60, "被打的那一层", fs=FS5S + 0.8, color=st.NAVY,
+         weight="bold")
+    txt5(ax, 8.62, 5.60, "防", fs=FS5S + 0.8, color=st.TEAL, weight="bold")
+
+    rows = [
+        ("角色扮演、虚构场景", "模型自己的拒绝", "看措辞，最容易被绕", 4.62),
+        ("换语言、换编码", "输入过滤", "分类器加规范化", 3.64),
+        ("网页文档里藏指令", "权限切分", "读的地方不许写", 2.66),
+        ("多轮铺垫再要动作", "人工确认", "不可逆动作转人工", 1.68),
+    ]
+    for atk, layer, sub, y in rows:
+        st.box(ax, 0.30, y - 0.36, 2.90, 0.72, "", fc="#FFFFFF", ec=st.RED,
+               lw=0.8)
+        txt5(ax, 1.75, y, atk, fs=FS5S - 0.6, color=st.INK)
+        st.arrow(ax, (3.26, y), (3.62, y), color=st.RED, lw=0.8)
+
+        st.box(ax, 3.68, y - 0.40, 3.05, 0.80, "", fc=st.BG, ec=st.NAVY,
+               lw=0.9)
+        txt5(ax, 5.20, y + 0.14, layer, fs=FS5S, color=st.NAVY, weight="bold")
+        note5(ax, 5.20, y - 0.18, sub, fs=FS5S - 1.0)
+
+        st.arrow(ax, (6.78, y), (7.14, y), color=st.TEAL, lw=0.8)
+
+    defs = ["训练时教它拒绝", "先规范化再判", "读写权限分开", "只放行可撤回的"]
+    for (_, _, _, y), d in zip(rows, defs):
+        st.box(ax, 7.20, y - 0.36, 2.85, 0.72, "", fc="#FFFFFF", ec=st.TEAL,
+               lw=0.8)
+        txt5(ax, 8.62, y, d, fs=FS5S - 0.6, color=st.TEAL)
+
+    st.arrow(ax, (0.62, 0.98), (0.62, 5.08), color=st.GRAY, lw=0.8)
+    note5(ax, 0.78, 0.82, "越往上越靠模型，越往下越靠系统", fs=FS5S - 1.0,
+          ha="left")
+
+    save5(fig, "21/jailbreak-defense.png")
+
+
 if __name__ == "__main__":
     fig_generation_loop()
     fig_training_stages()
@@ -652,4 +947,10 @@ if __name__ == "__main__":
     fig_multimodal_tokens()
     fig_agent_loop()
     fig_two_stage()
+    fig_sampling_temperature()
+    fig_data_funnel()
+    fig_params_memory()
+    fig_context_cost()
+    fig_ecosystem()
+    fig_jailbreak()
     print("done.")

@@ -523,6 +523,247 @@ def fig_08_ckpt_interval():
     save(fig, "08/ckpt-interval.png")
 
 
+# ------------------------------------------------- 09 减项阶梯（第 1 章）
+
+def fig_09_memory_waterfall():
+    """第 1 章：7B 在单卡上逐项减，哪一级跨过 80 GB。"""
+    setup()
+    fig = plt.figure(figsize=(W, 2.62))
+    fig.patch.set_facecolor("white")
+    ax = fig.add_axes([0.345, 0.235, 0.610, 0.660])
+
+    labels = ["16 字节\nBF16+FP32 主权重", "12 字节\n去主权重",
+              "8 字节\n动量方差降 BF16", "6 字节\n8 位优化器",
+              "2 字节\n只剩权重"]
+    vals = [112, 84, 56, 42, 14]
+    colors = [RED, RED, GOLD, TEAL, NAVY_L]
+    ys = np.arange(len(vals))[::-1].astype(float)
+
+    ax.barh(ys, vals, 0.56, color=colors, edgecolor="white", linewidth=0.7,
+            zorder=3)
+    for y, v, prev in zip(ys, vals, [None] + vals[:-1]):
+        ax.text(v + 2.5, y, f"{v} GB", fontsize=7.0, color=INK,
+                va="center", ha="left", zorder=6)
+        if prev:
+            ax.text(v - 3.0, y, f"−{prev - v}", fontsize=6.4, color="white",
+                    va="center", ha="right", zorder=7)
+
+    ax.axvline(80, color=INK, lw=0.9, ls=(0, (4, 2.5)), zorder=5)
+    ax.text(78, 4.62, "单卡 80 GB", fontsize=6.5, color=INK, ha="right",
+            va="center", zorder=6)
+
+    ax.set_yticks(ys)
+    ax.set_yticklabels(labels, fontsize=6.3)
+    ax.set_xlim(0, 128)
+    ax.set_ylim(-0.62, 4.86)
+    ax.set_xticks([0, 20, 40, 60, 80, 100, 120])
+    ax.set_xlabel("7B 模型的参数相关显存（GB，批与激活另计）", fontsize=6.6,
+                  labelpad=2)
+    ax.tick_params(axis="both", length=2.5, width=0.6, color=GRAY, pad=2)
+    ax.spines["left"].set_color(GRAY)
+    ax.spines["bottom"].set_color(GRAY)
+    ax.grid(axis="y", visible=False)
+    ax.grid(axis="x", visible=True)
+
+    save(fig, "01/memory-waterfall.png")
+
+
+# ------------------------------------------------- 10 气泡与微批数（第 4 章）
+
+def fig_10_bubble_curve():
+    """第 4 章：1F1B 与交错式 1F1B，气泡随微批数怎么降。"""
+    setup()
+    fig = plt.figure(figsize=(W, 2.62))
+    fig.patch.set_facecolor("white")
+    ax = fig.add_axes([0.135, 0.235, 0.825, 0.640])
+
+    M = np.arange(1, 65)
+    curves = [
+        (8, 1, "8 段，1F1B", NAVY, "-"),
+        (8, 8, "8 段，交错 8 份", NAVY, (0, (4, 2))),
+        (16, 1, "16 段，1F1B", GOLD, "-"),
+        (16, 8, "16 段，交错 8 份", GOLD, (0, (4, 2))),
+    ]
+    for P, v, lab, color, ls in curves:
+        y = (P - 1) / (M * v + P - 1) * 100
+        ax.plot(M, y, color=color, lw=1.25, ls=ls, label=lab, zorder=4)
+
+    ax.axhline(10, color=RED, lw=0.8, ls=(0, (2, 2)), zorder=3)
+    ax.text(63, 11.6, "10%", fontsize=6.2, color=RED, ha="right")
+
+    ax.set_xlim(1.6, 64)
+    ax.set_ylim(0, 80)
+    ax.set_xlabel("微批数 $M$", fontsize=FS - 0.6, labelpad=3)
+    ax.set_ylabel("气泡占比", fontsize=FS - 0.6, labelpad=3)
+    ax.set_yticks([0, 20, 40, 60, 80])
+    ax.set_yticklabels(["0", "20%", "40%", "60%", "80%"], fontsize=6.8)
+    ax.set_xticks([2, 4, 8, 16, 32, 64])
+    ax.set_xticklabels(["2", "4", "8", "16", "32", "64"], fontsize=6.8)
+    ax.tick_params(axis="both", length=2.5, width=0.6, color=GRAY, pad=2)
+    ax.spines["left"].set_color(GRAY)
+    ax.spines["bottom"].set_color(GRAY)
+    ax.legend(loc="upper right", frameon=False, fontsize=6.1,
+              handlelength=1.8, handletextpad=0.4, labelspacing=0.25,
+              ncol=2, columnspacing=1.2)
+
+    save(fig, "04/bubble-curve.png")
+
+
+# ------------------------------------------------- 11 显存四块（第 5 章）
+
+def fig_11_memory_parts():
+    """第 5 章：不切分时，四个模型的状态与激活各占多少。"""
+    setup()
+    fig = plt.figure(figsize=(W, 2.48))
+    fig.patch.set_facecolor("white")
+    ax = fig.add_axes([0.185, 0.300, 0.760, 0.585])
+
+    models = ["1.5B", "7B", "70B", "405B"]
+    w = [3, 14, 140, 810]
+    g = [3, 14, 140, 810]
+    o = [18, 84, 840, 4860]
+    a = [1.0, 18.5, 92.6, 291.0]
+    ys = np.arange(len(models))[::-1].astype(float)
+    left = np.zeros(len(models))
+
+    for vals, color, lab in [(w, NAVY, "权重"), (g, TEAL, "梯度"),
+                             (o, GOLD, "优化器状态"), (a, RED, "激活")]:
+        ax.barh(ys, vals, 0.50, left=left, color=color, edgecolor="white",
+                linewidth=0.6, zorder=3, label=lab)
+        left = left + np.array(vals)
+
+    for y, v in zip(ys, left):
+        ax.text(v * 1.15, y, f"{v:,.0f} GB", fontsize=6.8, color=INK,
+                va="center", ha="left", zorder=6)
+
+    ax.axvline(80, color=INK, lw=0.9, ls=(0, (4, 2.5)), zorder=5)
+    ax.text(76, 3.70, "单卡 80 GB", fontsize=6.2, color=INK, ha="right",
+            va="center", zorder=6)
+
+    ax.set_xscale("log")
+    ax.set_xlim(1.2, 40000)
+    ax.set_ylim(-0.75, 3.62)
+    ax.set_yticks(ys)
+    ax.set_yticklabels(models, fontsize=6.8)
+    ax.set_xlabel("单卡显存（GB，对数轴；不切分、批 1、序列 4096）",
+                  fontsize=6.5, labelpad=2)
+    ax.set_xticks([10, 100, 1000, 10000])
+    ax.set_xticklabels(["10", "100", "1000", "10000"], fontsize=6.6)
+    ax.minorticks_off()
+    ax.tick_params(axis="both", length=2.5, width=0.6, color=GRAY, pad=2)
+    ax.spines["left"].set_color(GRAY)
+    ax.spines["bottom"].set_color(GRAY)
+    ax.grid(axis="y", visible=False)
+    ax.legend(loc="upper center", bbox_to_anchor=(0.52, -0.245), ncol=4,
+              frameon=False, fontsize=6.2, handlelength=1.1,
+              handletextpad=0.35, columnspacing=1.4)
+
+    save(fig, "05/memory-parts.png")
+
+
+# ------------------------------------------------- 12 环与树（第 6 章）
+
+def fig_12_ring_tree():
+    """第 6 章：小消息看延迟、大消息看带宽：环与树的交叉点。"""
+    setup()
+    fig = plt.figure(figsize=(W, 2.62))
+    fig.patch.set_facecolor("white")
+    ax = fig.add_axes([0.140, 0.235, 0.820, 0.640])
+
+    N = np.arange(4, 1025)
+    Wb = 25e9            # 25 GB/s
+    L = 8e-6             # 单跳固定延迟 8 µs
+
+    def t_ring(S):
+        return (2 * S * (N - 1) / N / Wb + 2 * (N - 1) * L) * 1e3
+
+    def t_tree(S):
+        return (S * np.log2(N) / Wb + 2 * np.log2(N) * L) * 1e3
+
+    for S, lab, color in [(4e6, "4 MB", NAVY), (1e8, "100 MB", GOLD)]:
+        ax.plot(N, t_ring(S), color=color, lw=1.3, ls="-", zorder=4,
+                label=f"环，{lab}")
+        ax.plot(N, t_tree(S), color=color, lw=1.3, ls=(0, (4, 2)), zorder=4,
+                label=f"树，{lab}")
+
+    # 4 MB 的交叉点：延迟项占优，卡一多树就胜出
+    diff = t_ring(4e6) - t_tree(4e6)
+    idx = int(np.argmin(np.abs(diff)))
+    n0 = N[idx]
+    ax.plot([n0], [t_ring(4e6)[idx]], "o", ms=4.0, color=RED, zorder=7,
+            markeredgecolor="white", markeredgewidth=0.7)
+    ax.annotate(f"{n0} 卡附近相交", xy=(n0, t_ring(4e6)[idx]),
+                xytext=(n0 * 1.05, 0.20), fontsize=6.3, color=RED,
+                ha="left", va="center",
+                arrowprops=dict(arrowstyle="-", color=RED, lw=0.6))
+
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xlim(4, 1024)
+    ax.set_ylim(0.05, 60)
+    ax.set_xlabel("卡数 $N$（全归约，每卡梯度 $S$）", fontsize=6.6, labelpad=3)
+    ax.set_ylabel("一次全归约耗时（ms）", fontsize=6.6, labelpad=3)
+    ax.set_xticks([8, 32, 128, 512])
+    ax.set_xticklabels(["8", "32", "128", "512"], fontsize=6.8)
+    ax.set_yticks([0.1, 1, 10])
+    ax.set_yticklabels(["0.1", "1", "10"], fontsize=6.8)
+    ax.minorticks_off()
+    ax.tick_params(axis="both", length=2.5, width=0.6, color=GRAY, pad=2)
+    ax.spines["left"].set_color(GRAY)
+    ax.spines["bottom"].set_color(GRAY)
+    ax.legend(loc="lower right", frameon=False, fontsize=6.1, ncol=2,
+              handlelength=1.9, handletextpad=0.4, columnspacing=1.0,
+              labelspacing=0.25)
+
+    save(fig, "06/ring-tree.png")
+
+
+# ------------------------------------------------- 13 恢复时间（第 8 章）
+
+def fig_13_recovery():
+    """第 8 章：一次故障到重新开跑，时间花在哪四段。"""
+    setup()
+    fig = plt.figure(figsize=(W, 2.35))
+    fig.patch.set_facecolor("white")
+    ax = fig.add_axes([0.215, 0.290, 0.740, 0.600])
+
+    models = ["1.5B·8 卡", "7B·8 卡", "70B·64 卡", "405B·256 卡"]
+    detect = [0.5, 0.5, 1.0, 1.5]
+    sched = [0.7, 0.8, 1.5, 3.0]
+    read = [0.2, 0.6, 2.1, 6.5]
+    redo = [0.3, 1.2, 4.0, 9.0]
+    ys = np.arange(len(models))[::-1].astype(float)
+
+    left = np.zeros(len(models))
+    for vals, color, lab in [(detect, NAVY_L, "发现"), (sched, TEAL, "隔离与调度"),
+                             (read, GOLD, "读检查点"),
+                             (redo, RED, "回放到最新")]:
+        ax.barh(ys, vals, 0.52, left=left, color=color, edgecolor="white",
+                linewidth=0.6, zorder=3, label=lab)
+        left = left + np.array(vals)
+
+    for y, v in zip(ys, left):
+        ax.text(v + 0.28, y, f"{v:.1f} 分", fontsize=6.8, color=INK,
+                va="center", ha="left", zorder=6)
+
+    ax.set_yticks(ys)
+    ax.set_yticklabels(models, fontsize=6.6)
+    ax.set_xlim(0, 24)
+    ax.set_ylim(-0.60, 3.60)
+    ax.set_xticks([0, 5, 10, 15, 20])
+    ax.set_xlabel("一次故障后恢复正常训练的时间（分钟）", fontsize=6.6,
+                  labelpad=2)
+    ax.tick_params(axis="both", length=2.5, width=0.6, color=GRAY, pad=2)
+    ax.spines["left"].set_color(GRAY)
+    ax.spines["bottom"].set_color(GRAY)
+    ax.grid(axis="y", visible=False)
+    ax.legend(loc="upper center", bbox_to_anchor=(0.50, -0.30), ncol=4,
+              frameon=False, fontsize=6.1, handlelength=1.1,
+              handletextpad=0.35, columnspacing=1.2)
+
+    save(fig, "08/recovery.png")
+
+
 FIGS = {
     "01": fig_01_four_ways,
     "02": fig_02_zero_stages,
@@ -532,6 +773,11 @@ FIGS = {
     "06": fig_06_overlap,
     "07": fig_07_formats,
     "08": fig_08_ckpt_interval,
+    "09": fig_09_memory_waterfall,
+    "10": fig_10_bubble_curve,
+    "11": fig_11_memory_parts,
+    "12": fig_12_ring_tree,
+    "13": fig_13_recovery,
 }
 
 

@@ -475,15 +475,286 @@ def fig_09_capacity_flow():
 
     save(fig, "09/capacity-flow.png")
 
+# ---------------------------------------------------------------- 新增：坐标图
+
+def plot_canvas(h_in: float = 2.60, ncols: int = 1, left: float = 0.115):
+    """带坐标轴的画布；宽度仍是 5.2 in，供 roofline 之类的曲线图使用。"""
+    setup()
+    fig, axs = plt.subplots(1, ncols, figsize=(W, h_in))
+    if ncols == 1:
+        axs = [axs]
+    fig.patch.set_facecolor("white")
+    fig.subplots_adjust(left=left, right=0.975, top=0.945, bottom=0.20,
+                        wspace=0.38)
+    return fig, axs
+
+
+def fig_01_roofline():
+    """第 1 章：同一张 roofline 上的解码点与预填充点。"""
+    import numpy as np
+
+    fig, (ax,) = plot_canvas(2.95)
+    x = np.logspace(-0.4, 3.9, 500)
+
+    roof_a = np.minimum(312, 2.04 * x)          # A100 FP16
+    roof_h = np.minimum(1979, 3.35 * x)         # H100 FP8
+    ax.plot(x, roof_a, color=NAVY, lw=1.3, zorder=3)
+    ax.plot(x, roof_h, color=TEAL, lw=1.3, zorder=3)
+    ax.fill_between(x, 1.2, roof_a, color=tint(NAVY, 0.10), zorder=1)
+    ax.fill_between(x, roof_a, roof_h, color=tint(TEAL, 0.10), zorder=1)
+
+    txt(ax, 430, 430, "A100 FP16", fs=FS_S, color=NAVY, ha="left", va="bottom")
+    txt(ax, 760, 2120, "H100 FP8", fs=FS_S, color=TEAL, ha="left", va="bottom")
+
+    for xr, ry, lab, c, ly in ((153, 312, "拐点 153", NAVY, 1150),
+                               (590, 1979, "拐点 590", TEAL, 6.0)):
+        ax.plot([xr, xr], [1.2, ry], color=c, lw=0.6, ls=(0, (3, 3)), zorder=2)
+        txt(ax, xr, ly, lab, fs=FS_S - 0.8, color=c, ha="center", rotation=90)
+
+    pts = [
+        (1.0, 2.04, "7B 解码", 5, 20, "left", NAVY),
+        (1000, 140, "7B 预填充", -9, -5, "right", NAVY),
+        (2.0, 6.7, "400B 解码", 9, -3, "left", TEAL),
+        (2000, 890, "400B 预填充", -9, 4, "right", TEAL),
+        (1000, 281, "INT8 预填充", 9, -13, "left", GOLD),
+    ]
+    for px, py, lab, dx, dy, ha, c in pts:
+        ax.plot([px], [py], marker="o", ms=4.2, color=c, zorder=6,
+                markeredgecolor="white", markeredgewidth=0.6)
+        ax.annotate(lab, xy=(px, py), xytext=(dx, dy), textcoords="offset points",
+                    fontsize=FS_S - 0.4, color=INK, ha=ha, va="center", zorder=7)
+
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xlim(0.55, 6000)
+    ax.set_ylim(1.2, 2600)
+    ax.set_xticks([1, 10, 100, 1000])
+    ax.set_xticklabels(["1", "10", "100", "1000"])
+    ax.set_yticks([2, 10, 100, 1000])
+    ax.set_yticklabels(["2", "10", "100", "1000"])
+    ax.set_xlabel("算术强度 (FLOP/字节)", labelpad=2)
+    ax.set_ylabel("算力 (TFLOPS/卡)", labelpad=2)
+    ax.tick_params(length=2, pad=1.5)
+    note(ax, 1.5, 1.55, "斜线段：带宽受限", fs=FS_S - 0.8, color=GRAY, ha="left")
+    save(fig, "01/roofline.png")
+
+
+def fig_02_kv_share():
+    """第 2 章：上下文变长，几条并发就能把一张卡填满，并发随即掉下来。"""
+    import numpy as np
+
+    fig, (ax1, ax2) = plot_canvas(2.55, ncols=2)
+    ctx = np.logspace(np.log10(1024), np.log10(131072), 400)
+
+    for n, c, f in ((10, NAVY_L, 0.06), (40, TEAL, 0.10), (80, GOLD, 0.12)):
+        ax1.plot(ctx, 14 + n * ctx * 128 * 1024 / 1e9, color=c, lw=1.1, zorder=3)
+        ax1.fill_between(ctx, 0, 14 + n * ctx * 128 * 1024 / 1e9,
+                         color=tint(c, f), zorder=2)
+    ax1.axhline(80, color=RED, lw=0.9, ls=(0, (4, 3)), zorder=4)
+    txt(ax1, 1100, 83, "80 GB 卡", fs=FS_S - 0.8, color=RED, ha="left",
+        va="bottom")
+    for i, (n, c) in enumerate(((80, GOLD), (40, TEAL), (10, NAVY_L))):
+        yy = 134 - i * 12
+        ax1.plot([1080, 1500], [yy, yy], color=c, lw=1.2, zorder=6)
+        txt(ax1, 1700, yy, "%d 条并发" % n, fs=FS_S - 0.8, color=c,
+            ha="left", va="center")
+    ax1.set_xscale("log")
+    ax1.set_xlim(1024, 131072)
+    ax1.set_ylim(0, 140)
+    ax1.set_xticks([1024, 8192, 65536])
+    ax1.set_xticklabels(["1K", "8K", "64K"])
+    ax1.set_yticks([0, 40, 80, 120])
+    ax1.set_xlabel("上下文长度", labelpad=2)
+    ax1.set_ylabel("权重 + KV 占用 (GB)", labelpad=2)
+    ax1.tick_params(length=2, pad=1.5)
+
+    ax2.plot(ctx, 62 / (ctx * 128 * 1024 / 1e9), color=TEAL, lw=1.2, zorder=3)
+    ax2.plot(ctx, 62 / (ctx * 512 * 1024 / 1e9), color=GOLD, lw=1.2,
+             ls=(0, (4, 2.5)), zorder=3)
+    ax2.axhline(1, color=GRAY, lw=0.7, ls=(0, (2, 2)))
+    ax2.set_xscale("log")
+    ax2.set_yscale("log")
+    ax2.set_xlim(1024, 131072)
+    ax2.set_ylim(0.4, 600)
+    ax2.set_xticks([1024, 8192, 65536])
+    ax2.set_xticklabels(["1K", "8K", "64K"])
+    ax2.set_yticks([1, 10, 100])
+    ax2.set_yticklabels(["1", "10", "100"])
+    ax2.set_xlabel("上下文长度", labelpad=2)
+    ax2.set_ylabel("单卡并发 (条)", labelpad=2)
+    ax2.tick_params(length=2, pad=1.5)
+    txt(ax2, 14000, 70, "分组查询", fs=FS_S - 0.8, color=TEAL, ha="left")
+    txt(ax2, 15000, 12, "多头", fs=FS_S - 0.8, color=GOLD, ha="left")
+    save(fig, "02/kv-share.png")
+
+def fig_03_chunked():
+    """第 3 章：整块预填充的一次长停顿，对比切块后的连续小停顿。"""
+    fig, ax = canvas(2.55)
+
+    x0, w = 0.60, 8.55
+    k = w / 1700.0                      # 1 ms -> x
+
+    def bar(y, a, b, h, color, f):
+        ax.add_patch(Rectangle((x0 + a * k, y), max((b - a) * k, 0.035), h,
+                               facecolor=tint(color, f), edgecolor=color,
+                               lw=0.4, zorder=4))
+
+    # 整块
+    txt(ax, 0.55, 4.32, "整块", fs=FS, weight="bold", ha="left")
+    note(ax, 0.55, 4.06, "一次吃掉 1.6 秒", fs=FS_S - 0.4, ha="left")
+    bar(3.30, 0, 1600, 0.46, NAVY, 0.26)
+    txt(ax, x0 + 760 * k, 3.53, "16000 token 预填充", fs=FS_S, color=INK)
+    for i in range(10):
+        bar(3.02, 1605 + i * 9.5, 1605 + i * 9.5 + 3.2, 0.14, GOLD, 0.55)
+    note(ax, x0 + 1596 * k, 3.08, "恢复出字", fs=FS_S - 0.8, color=GOLD,
+         ha="right")
+    ax.annotate("", xy=(x0, 2.80), xytext=(x0 + 1600 * k, 2.80),
+                arrowprops=dict(arrowstyle="<|-|>", color=RED, lw=0.7,
+                                shrinkA=0, shrinkB=0))
+    txt(ax, x0 + 780 * k, 2.64, "解码全部停摆 1.6 秒", fs=FS_S - 0.8, color=RED)
+
+    # 切块
+    txt(ax, 0.55, 2.16, "切块", fs=FS, weight="bold", ha="left")
+    note(ax, 0.55, 1.90, "512 token 一块", fs=FS_S - 0.4, ha="left")
+    t = 0.0
+    for _ in range(31):
+        bar(1.26, t, t + 51.2, 0.46, NAVY, 0.22)
+        t += 51.2
+        bar(0.96, t, t + 8.0, 0.14, GOLD, 0.55)
+        t += 8.0
+    note(ax, x0 + 780 * k, 0.74, "每块之间插一步解码，最长停顿 51 毫秒",
+         fs=FS_S - 0.8, color=INK)
+
+    for ms, lab in ((0, "0"), (400, "0.4 s"), (800, "0.8 s"),
+                    (1200, "1.2 s"), (1600, "1.6 s")):
+        note(ax, x0 + ms * k, 0.44, lab, fs=FS_S - 0.8)
+    save(fig, "03/chunked-prefill.png")
+
+def fig_05_quant_gain():
+    """第 5 章：五种精度配置的每步读取字节与理论速度上限。"""
+    fig, (ax1, ax2) = plot_canvas(2.65, ncols=2)
+
+    names = ["FP16", "W8A16", "W4A16", "W4+KV8", "FP8"]
+    wt = [14.0, 7.0, 3.61, 3.61, 7.0]
+    kv = [1.0, 1.0, 1.0, 0.5, 0.5]
+    caps = [136, 255, 443, 496, 272]
+    y = list(range(len(names)))[::-1]
+
+    for i, (a, b) in enumerate(zip(wt, kv)):
+        ax1.barh(y[i], a, height=0.52, color=tint(NAVY, 0.30), edgecolor=NAVY,
+                 lw=0.6, zorder=3)
+        ax1.barh(y[i], b, left=a, height=0.52, color=tint(TEAL, 0.40),
+                 edgecolor=TEAL, lw=0.6, zorder=3)
+        ax1.text(a + b + 0.35, y[i], f"{a + b:.1f}", fontsize=FS_S - 0.4,
+                 color=INK, va="center", ha="left", zorder=6)
+    ax1.set_yticks(y)
+    ax1.set_yticklabels(names, fontsize=FS_S - 0.2)
+    ax1.set_xlim(0, 18.5)
+    ax1.set_xticks([0, 5, 10, 15])
+    ax1.set_xlabel("每步读取 (GB)", labelpad=2)
+    ax1.tick_params(length=2, pad=1.5)
+    txt(ax1, 6.4, 4.46, "权重", fs=FS_S - 0.8, color=NAVY)
+    txt(ax1, 9.9, 4.46, "KV", fs=FS_S - 0.8, color=TEAL)
+
+    for i, c in enumerate(caps):
+        ax2.barh(y[i], c, height=0.52, color=tint(GOLD, 0.28), edgecolor=GOLD,
+                 lw=0.6, zorder=3)
+        ax2.text(c + 9, y[i], str(c), fontsize=FS_S - 0.4, color=INK,
+                 va="center", ha="left", zorder=6)
+    ax2.set_yticks(y)
+    ax2.set_yticklabels([])
+    ax2.set_xlim(0, 640)
+    ax2.set_xticks([0, 200, 400, 600])
+    ax2.set_xlabel("理论上限 (token/s)", labelpad=2)
+    ax2.tick_params(length=2, pad=1.5)
+    note(ax2, 330, 4.46, "2048 token 上下文、批 1", fs=FS_S - 0.8)
+    save(fig, "05/quant-gain.png")
+
+
+def fig_07_spec_gain():
+    """第 7 章：净加速随批大小下滑，接受率越低越早跌破 1。"""
+    import numpy as np
+
+    fig, (ax,) = plot_canvas(2.70)
+    B = np.logspace(0, np.log10(128), 300)
+
+    def net(alpha, k=4, c=0.04, kv=0.25):
+        E = (1 - alpha ** (k + 1)) / (1 - alpha)
+        t_bw = (14 + kv * B) * 1000 / 2040
+        t_norm = np.maximum(t_bw, 0.1 * B)
+        t_spec = np.maximum(t_bw, 0.1 * (k + 1) * B)
+        return E * t_norm / (t_spec * (1 + k * c))
+
+    ax.axvspan(18, 130, color=tint(RED, 0.08), zorder=1)
+    for a, c in ((0.6, GRAY), (0.75, GOLD), (0.9, TEAL)):
+        ax.plot(B, net(a), color=c, lw=1.3, label="接受率 %g" % a)
+    ax.axhline(1.0, color=RED, lw=0.8, ls=(0, (4, 3)))
+    ax.axvline(18, color=RED, lw=0.7, ls=(0, (3, 3)), zorder=2)
+    ax.set_xscale("log")
+    ax.set_xlim(1, 128)
+    ax.set_ylim(0, 4.3)
+    ax.set_xticks([1, 4, 16, 64])
+    ax.set_xticklabels(["1", "4", "16", "64"])
+    ax.set_yticks([0, 1, 2, 3, 4])
+    ax.set_xlabel("批大小", labelpad=2)
+    ax.set_ylabel("净加速比", labelpad=2)
+    ax.tick_params(length=2, pad=1.5)
+    ax.legend(frameon=False, loc="upper right", handlelength=1.3,
+              borderpad=0.1, labelspacing=0.3, fontsize=FS_S - 0.8)
+    txt(ax, 15.4, 1.62, "拐点约 18", fs=FS_S - 0.8, color=RED, ha="right",
+        rotation=90)
+    txt(ax, 26, 0.86, "净加速 < 1", fs=FS_S - 0.8, color=RED, ha="center",
+        va="top")
+    save(fig, "07/spec-gain.png")
+
+
+def fig_09_sensitivity():
+    """第 9 章：把八个参数各动一下，看机器数往哪边跳。"""
+    fig, (ax,) = plot_canvas(2.75, left=0.285)
+
+    rows = [
+        ("输入 32000", 232, GOLD),
+        ("输入 8000", 58, GOLD),
+        ("峰值系数 8", 24, NAVY_L),
+        ("输出 1000", 16, TEAL),
+        ("基线", 15, INK),
+        ("W8A8 量化", 7.3, TEAL),
+        ("前缀缓存 78%", 6.5, TEAL),
+        ("峰值系数 2", 6, NAVY_L),
+    ]
+    y = list(range(len(rows)))[::-1]
+    for i, (lab, v, c) in enumerate(rows):
+        ax.barh(y[i], v, height=0.52, color=tint(c, 0.22), edgecolor=c, lw=0.6,
+                zorder=3)
+        ax.text(v * 1.07, y[i], "%g" % v, fontsize=FS_S - 0.4, color=INK,
+                va="center", ha="left", zorder=6)
+    ax.set_yticks(y)
+    ax.set_yticklabels([r[0] for r in rows], fontsize=FS_S - 0.4)
+    ax.axvline(15, color=RED, lw=0.8, ls=(0, (4, 3)), zorder=4)
+    ax.set_xscale("log")
+    ax.set_xlim(3.4, 460)
+    ax.set_xticks([5, 15, 50, 200])
+    ax.set_xticklabels(["5", "15", "50", "200"])
+    ax.set_xlabel("预填充节点数（取最大、未加冗余）", labelpad=2)
+    ax.tick_params(length=2, pad=1.5)
+    txt(ax, 15, 7.62, "基线 15", fs=FS_S - 0.8, color=RED, ha="center")
+    save(fig, "09/sensitivity.png")
+
 
 FIGS = {
     "01": fig_01_two_phases,
+    "01b": fig_01_roofline,
     "02": fig_02_kv_budget,
+    "02b": fig_02_kv_share,
     "03": fig_03_batching,
+    "03b": fig_03_chunked,
     "05": fig_05_granularity,
+    "05b": fig_05_quant_gain,
     "07": fig_07_spec_decode,
+    "07b": fig_07_spec_gain,
     "08": fig_08_pd_split,
     "09": fig_09_capacity_flow,
+    "09b": fig_09_sensitivity,
 }
 
 
