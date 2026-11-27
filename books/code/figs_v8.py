@@ -384,47 +384,37 @@ def fig_10_drift():
 # ---------------------------------------------------------------- 01 成本交叉
 
 def fig_01_cost():
-    """第 1 章：全塞与检索的月成本随日调用量变化，及交叉点。"""
+    """第 1 章：全塞与检索的月成本随日调用量变化，及交线。"""
     setup()
     plt.rcParams["font.sans-serif"] = [st_font, "DejaVu Sans"]
     fig = plt.figure(figsize=(W, 2.70))
     fig.patch.set_facecolor("white")
     ax = fig.add_axes([0.155, 0.255, 0.815, 0.650])
 
-    q = np.logspace(1, np.log10(6000), 200)
-    full = 135.0 * q                       # 4.5 元/次 × 30 天
-    rag = 5500.0 + 10.8 * q                # 摊薄的开发成本 + 0.36 元/次×30
+    q = np.logspace(1, np.log10(6000), 240)
+    full = 135.0 * q
+    rag = 5500.0 + 0.36 * q
 
-    ax.plot(q, full, color=RED, lw=1.3, zorder=4)
-    ax.plot(q, rag, color=NAVY, lw=1.3, zorder=4)
+    ax.plot(q, full, color=RED, lw=1.3, zorder=4,
+            label="全塞：135q 元/月")
+    ax.plot(q, rag, color=NAVY, lw=1.3, zorder=4,
+            label="检索：5500 + 0.36q 元/月")
     ax.set_xscale("log")
     ax.set_yscale("log")
     ax.set_xlim(10, 6000)
     ax.set_ylim(200, 1.2e6)
 
-    qc = 5500 / (135 - 10.8)
+    qc = 5500 / (135 - 0.36)
     ax.plot([qc], [135 * qc], marker="o", ms=5.0, color=GOLD, zorder=6)
-    ax.annotate("交叉点 44 次/天",
-                xy=(qc, 135 * qc), xytext=(105, 1750),
+    ax.annotate("交线 41 次/天",
+                xy=(qc, 135 * qc), xytext=(1.05e2, 900),
                 fontsize=FS_S - 0.4, color=GOLD,
                 arrowprops=dict(arrowstyle="-", color=GOLD, lw=0.6,
                                 shrinkA=2, shrinkB=4))
 
-    ax.annotate("全塞：135 元 × 日调用量",
-                xy=(3400, 135 * 3400), xytext=(620, 3.2e5),
-                fontsize=FS_S - 0.4, color=RED,
-                arrowprops=dict(arrowstyle="-", color=RED, lw=0.6,
-                                shrinkA=2, shrinkB=4))
-    ax.annotate("检索：5500 + 10.8 元 × 日调用量",
-                xy=(90, 5500 + 10.8 * 90), xytext=(17, 22000),
-                fontsize=FS_S - 0.4, color=NAVY,
-                arrowprops=dict(arrowstyle="-", color=NAVY, lw=0.6,
-                                shrinkA=2, shrinkB=4))
-
     ax.axvspan(10, qc, color=tint(GOLD, 0.10), zorder=0, lw=0)
-    ax.text(21, 330, "量小：全塞更省钱", fontsize=FS_S - 0.6, color=GRAY)
 
-    ax.set_xlabel("每天问答次数（对数）", fontsize=8)
+    ax.set_xlabel("每天问答次数 q（对数）", fontsize=8)
     ax.set_ylabel("月成本 / 元（对数）", fontsize=8)
     ax.set_xticks([10, 30, 100, 300, 1000, 3000])
     ax.set_xticklabels(["10", "30", "100", "300", "1000", "3000"])
@@ -432,9 +422,12 @@ def fig_01_cost():
     ax.set_axisbelow(True)
     ax.spines["left"].set_color(GRAY)
     ax.spines["bottom"].set_color(GRAY)
+    ax.legend(frameon=False, loc="upper left", fontsize=FS_S - 0.6,
+              handlelength=1.4, labelspacing=0.35)
 
-    fig.text(0.5, 0.055, "开发成本 3 万元按 12 个月摊薄，月维护 3000 元",
-             fontsize=FS_S - 0.6, color=GRAY, ha="center")
+    fig.text(0.5, 0.055,
+             "开发 3 万元按 12 个月摊薄 + 月维护 3000 元；检索一次 0.012 元",
+             fontsize=FS_S - 0.9, color=GRAY, ha="center")
 
     save(fig, "01/cost-curve.png")
 
@@ -445,9 +438,9 @@ def fig_03_memory():
     """第 3 章：三种精度下，索引内存随块数的增长。"""
     setup()
     plt.rcParams["font.sans-serif"] = [st_font, "DejaVu Sans"]
-    fig = plt.figure(figsize=(W, 2.55))
+    fig = plt.figure(figsize=(W, 2.62))
     fig.patch.set_facecolor("white")
-    ax = fig.add_axes([0.155, 0.255, 0.815, 0.645])
+    ax = fig.add_axes([0.150, 0.255, 0.830, 0.650])
 
     ns = np.array([1e5, 1e6, 1e7])
     dim = 1024
@@ -456,26 +449,27 @@ def fig_03_memory():
     bin1 = ns * dim / 8 / 1024 ** 3
 
     x = np.arange(3)
-    w = 0.24
-    for i, (v, c, lab) in enumerate([(fp32, RED, "FP32"),
-                                     (int8, NAVY, "INT8"),
-                                     (bin1, TEAL, "二值 1 bit")]):
-        b = ax.bar(x + (i - 1) * w, v, w * 0.92, color=c, alpha=0.85,
-                   label=lab, zorder=4, lw=0)
-        for r, val in zip(b, v):
-            ax.text(r.get_x() + r.get_width() / 2, val * 1.12,
-                    f"{val:.2g}", ha="center", va="bottom",
-                    fontsize=FS_S - 1.4, color=c)
+    series = [(fp32, RED, "FP32"), (int8, NAVY, "INT8"),
+              (bin1, TEAL, "二值 1 bit")]
 
-    ax.axhline(16, color=GRAY, lw=0.8, ls=(0, (4, 3)), zorder=3)
-    ax.text(2.44, 17, "单机 16 GB", fontsize=FS_S - 1.0, color=GRAY,
-            ha="right")
-    ax.axhline(64, color=GRAY, lw=0.8, ls=(0, (4, 3)), zorder=3)
-    ax.text(2.44, 67, "单机 64 GB", fontsize=FS_S - 1.0, color=GRAY,
-            ha="right")
+    for v, c, lab in series:
+        ax.plot(x, v, color=c, lw=1.1, marker="o", ms=4.6, label=lab,
+                zorder=5, clip_on=False)
+        for xi, val in zip(x, v):
+            ax.annotate(f"{val:.2g}", (xi, val), textcoords="offset points",
+                        xytext=(7, -3.2), fontsize=FS_S - 1.4, color=c,
+                        zorder=6)
+
+    ax.axhline(16, color=GRAY, lw=0.8, ls=(0, (4, 3)), zorder=2)
+    ax.text(-0.43, 18.0, "单机 16 GB", fontsize=FS_S - 1.2, color=GRAY,
+            ha="left")
+    ax.axhline(64, color=GRAY, lw=0.8, ls=(0, (4, 3)), zorder=2)
+    ax.text(-0.43, 72.0, "单机 64 GB", fontsize=FS_S - 1.2, color=GRAY,
+            ha="left")
 
     ax.set_yscale("log")
-    ax.set_ylim(5, 170)
+    ax.set_ylim(0.004, 500)
+    ax.set_xlim(-0.45, 2.45)
     ax.set_xticks(x)
     ax.set_xticklabels(["10 万块", "100 万块", "1000 万块"])
     ax.set_ylabel("索引内存 / GB（对数）", fontsize=8)
@@ -484,7 +478,8 @@ def fig_03_memory():
     ax.spines["left"].set_color(GRAY)
     ax.spines["bottom"].set_color(GRAY)
     ax.legend(frameon=False, ncol=3, loc="upper left",
-              fontsize=FS_S - 0.8, handlelength=1.1)
+              fontsize=FS_S - 0.8, handlelength=1.2,
+              bbox_to_anchor=(0.02, 1.03))
 
     fig.text(0.5, 0.045, "1024 维，只计向量本身；HNSW 图结构另加 5%–10%",
              fontsize=FS_S - 0.8, color=GRAY, ha="center")
@@ -496,41 +491,41 @@ def fig_03_memory():
 
 def fig_04_funnel():
     """第 4 章：从一百万块到五段，每一级剩多少、花多久。"""
-    fig, ax = canvas(2.55)
+    fig, ax = canvas(2.45)
 
     rows = [
-        ("全库 100 万块", "ANN 实际比较约 3000 个", 1000000, "25 ms", NAVY_XL),
-        ("两路各 50，去重后 78", "BM25 命中 + 向量命中", 78, "5 ms", NAVY_L),
-        ("RRF 取前 30", "融合两路排名", 30, "1 ms", GOLD),
-        ("重排取前 5", "逐条打分，不能靠加机器摊薄", 5, "80 ms", RED),
+        ("1,000,000", "全库", "ANN 实际比较约 3000 个", "25 ms", NAVY_XL),
+        ("78", "两路各 50，去重", "BM25 命中 + 向量命中", "5 ms", NAVY_L),
+        ("30", "RRF 取前 30", "两路排名相加", "1 ms", GOLD),
+        ("5", "重排后进提示", "逐条打分，延迟大头", "80 ms", RED),
     ]
 
-    x0, top = 0.30, 4.30
-    rh, gap = 0.78, 0.30
-    maxw = 6.40
+    bx, top, rh, gap = 2.35, 4.18, 0.62, 0.48
+    maxw = 3.30
+    lmax = np.log10(1e6)
 
-    for i, (name, sub, n, ms, c) in enumerate(rows):
+    for i, (cnt, name, sub, ms, c) in enumerate(rows):
         y = top - i * (rh + gap)
-        w = maxw * (np.log10(n) / 6.0) ** 1.15
-        w = max(w, 0.55)
-        ax.add_patch(Rectangle((x0, y), w, rh, facecolor=tint(c, 0.28),
+        n = float(cnt.replace(",", ""))
+        w = max(maxw * np.log10(n) / lmax, 0.34)
+        ax.add_patch(Rectangle((bx, y), w, rh, facecolor=tint(c, 0.30),
                                edgecolor=c, lw=0.8, zorder=3))
-        txt(ax, x0 + 0.18, y + rh * 0.66, f"{n:,}" if n >= 1000 else str(n),
-            fs=FS_S + 2.2, color=INK, ha="left", weight="bold")
-        txt(ax, x0 + 0.18, y + rh * 0.26, name, fs=FS_S - 0.6, color=INK,
-            ha="left")
-        txt(ax, x0 + w + 0.24, y + rh * 0.62, sub, fs=FS_S - 1.0, color=GRAY,
-            ha="left")
-        note(ax, x0 + w + 0.24, y + rh * 0.24, ms, fs=FS_S - 0.4,
-             color=RED if i == 3 else GRAY, ha="left")
+        txt(ax, bx - 0.20, y + rh * 0.5, cnt, fs=FS_S + 1.4, ha="right",
+            weight="bold")
+        txt(ax, 5.98, y + rh * 0.63, name, fs=FS_S - 0.4, ha="left")
+        note(ax, 5.98, y + rh * 0.24, sub, fs=FS_S - 1.3, ha="left")
+        txt(ax, 10.15, y + rh * 0.5, ms, fs=FS_S - 0.2, ha="right",
+            color=RED if i == 3 else GRAY,
+            weight="bold" if i == 3 else "normal")
         if i:
-            txt(ax, x0 - 0.04, y + rh + gap / 2,
-                f"×{rows[i - 1][2] / n:.2f}", fs=FS_S - 1.4, color=GRAY,
-                ha="right")
+            prev = float(rows[i - 1][0].replace(",", ""))
+            txt(ax, bx + 1.30, y + rh + gap * 0.5,
+                f"收窄到 1/{prev / n:,.0f}", fs=FS_S - 1.6, color=GRAY)
 
-    note(ax, 5.05, 0.52, "横向长度按块数的对数折算，不是等比", fs=FS_S - 1.0)
-    note(ax, 5.05, 0.22, "红色是延迟大头：30 条候选的重排", fs=FS_S - 1.0,
-         color=RED)
+    note(ax, 5.20, 0.52, "横向长度按块数的对数折算，不是等比",
+         fs=FS_S - 1.0)
+    note(ax, 5.20, 0.24, "红色是延迟大头：30 条候选的重排",
+         fs=FS_S - 0.8, color=RED)
 
     save(fig, "04/funnel.png")
 
@@ -539,41 +534,55 @@ def fig_04_funnel():
 
 def fig_05_budget():
     """第 5 章：8K 窗口里六段预算怎么切。"""
-    fig, ax = canvas(2.35)
+    fig, ax = canvas(2.55)
 
     parts = [("系统规则", 300, NAVY), ("资料 5 段", 2400, GOLD),
              ("对话历史", 1500, TEAL), ("用户问题", 200, NAVY_L),
              ("输出预留", 800, RED), ("余量", 2800, LGRAY)]
     total = sum(p[1] for p in parts)
-    x0, y0, H = 0.30, 3.32, 0.92
-    span = 9.80
+    x0, y0, H, span = 0.40, 3.70, 0.86, 9.60
 
     x = x0
     for name, v, c in parts:
         w = span * v / total
-        ax.add_patch(Rectangle((x, y0), w, H, facecolor=tint(c, 0.25),
+        ax.add_patch(Rectangle((x, y0), w, H, facecolor=tint(c, 0.26),
                                edgecolor=c, lw=0.8, zorder=3))
-        if w > 0.85:
-            txt(ax, x + w / 2, y0 + H * 0.62, name, fs=FS_S - 0.6)
-            txt(ax, x + w / 2, y0 + H * 0.28, str(v), fs=FS_S - 1.2, color=GRAY)
+        if w >= 1.05:
+            txt(ax, x + w / 2, y0 + H * 0.63, name, fs=FS_S - 0.6)
+            txt(ax, x + w / 2, y0 + H * 0.27, str(v),
+                fs=FS_S - 1.2, color=GRAY)
         x += w
 
-    note(ax, x0 + span * 5200 / total - 0.9, y0 + H + 0.30,
-         "已用 5200", fs=FS_S - 0.6, color=INK)
-    note(ax, x0 + span * 6600 / total + 0.5, y0 + H + 0.30,
-         "留 2800 应付长问题、多轮与长资料", fs=FS_S - 0.8, color=GRAY)
+    txt(ax, 0.14, y0 + H + 0.34, "系统规则 300", fs=FS_S - 0.8, ha="left")
+    ax.plot([x0 + span * 300 / total / 2] * 2,
+            [y0 + H + 0.05, y0 + H + 0.28], color=NAVY_L, lw=0.6, zorder=4)
 
-    for i, (name, v, c) in enumerate(parts):
+    xused = x0 + span * 5200 / total
+    ax.plot([xused, xused], [y0 - 0.30, y0 + H + 0.10], color=GRAY,
+            lw=0.7, ls=(0, (3, 2)), zorder=4)
+    note(ax, xused - 0.12, y0 - 0.50, "已用 5200", fs=FS_S - 0.9,
+         ha="right", color=INK)
+    note(ax, xused + 0.14, y0 - 0.50, "余 2800：长问题、多轮、长资料",
+         fs=FS_S - 1.1, ha="left")
+
+    legend = [("系统规则", "300", NAVY, "约 200 字"),
+              ("资料 5 段", "2400", GOLD, "每段 320 字"),
+              ("对话历史", "1500", TEAL, "约 5 轮"),
+              ("用户问题", "200", NAVY_L, "约 130 字"),
+              ("输出预留", "800", RED, "约 530 字"),
+              ("余量", "2800", LGRAY, "约 1870 字")]
+    for i, (name, v, c, zh) in enumerate(legend):
         col, row = i % 2, i // 2
-        lx = 0.34 + col * 4.95
-        ly = 2.30 - row * 0.62
-        ax.add_patch(Rectangle((lx, ly), 0.34, 0.30, facecolor=tint(c, 0.25),
+        lx = 0.42 + col * 4.90
+        ly = 2.56 - row * 0.72
+        ax.add_patch(Rectangle((lx, ly), 0.30, 0.30, facecolor=tint(c, 0.26),
                                edgecolor=c, lw=0.8, zorder=3))
-        txt(ax, lx + 0.48, ly + 0.15, f"{name}　{v} token", fs=FS_S - 0.6,
-            ha="left")
+        txt(ax, lx + 0.44, ly + 0.15, name, fs=FS_S - 0.6, ha="left")
+        note(ax, lx + 1.92, ly + 0.15, v, fs=FS_S - 0.8, ha="left")
+        note(ax, lx + 2.68, ly + 0.15, zh, fs=FS_S - 1.2, ha="left")
 
-    note(ax, 5.05, 0.22, "中文按 1 字约 1.5 token 折算：300 token ≈ 200 字",
-         fs=FS_S - 1.0)
+    note(ax, 5.20, 0.40, "中文按 1 字约 1.5 token 折算；窗口 8K",
+         fs=FS_S - 0.9)
 
     save(fig, "05/prompt-budget.png")
 
@@ -595,7 +604,7 @@ def fig_06_samples():
     ax.plot(n, hw, color=NAVY, lw=1.4, zorder=4)
     ax.fill_between(n, hw, 0, color=tint(NAVY, 0.10), zorder=2, lw=0)
     ax.axhline(3.0, color=GOLD, lw=0.9, ls=(0, (4, 3)), zorder=3)
-    ax.text(590, 3.4, "±3 个点", fontsize=FS_S - 0.8, color=GOLD, ha="right")
+    ax.text(588, 3.7, "±3 个点", fontsize=FS_S - 0.8, color=GOLD, ha="right")
 
     for nn in (50, 100, 187, 500):
         v = 1.96 * np.sqrt(p * (1 - p) / nn) * 100
@@ -605,7 +614,7 @@ def fig_06_samples():
                 color=RED if nn < 187 else NAVY, ha="center")
 
     ax.set_xlim(30, 600)
-    ax.set_ylim(0, 13.5)
+    ax.set_ylim(0, 15.2)
     ax.set_xlabel("评测集样本量 n", fontsize=8)
     ax.set_ylabel("95% 区间半宽 / 百分点", fontsize=8)
     ax.grid(color=LGRAY, lw=0.5, alpha=0.7)
@@ -654,22 +663,22 @@ def fig_07_parallel():
     ax.plot([X(870), X(870)], [y_s - 0.10, y_s + hh + 0.10], color=RED, lw=0.8,
             zorder=5)
 
-    y_p = 2.38
+    y_p = 2.34
     ax.add_patch(Rectangle((X(0), y_p), X(rtt) - X(0), hh,
                            facecolor=tint(GRAY, 0.12), edgecolor=LGRAY,
                            lw=0.7, zorder=3))
     for i, (name, d, c) in enumerate(calls):
-        yy = y_p + hh - 0.20 * i - 0.10
-        ax.add_patch(Rectangle((X(rtt), yy), X(rtt + d) - X(rtt), 0.15,
+        yy = y_p + hh - 0.22 * i - 0.14
+        ax.add_patch(Rectangle((X(rtt), yy), X(rtt + d) - X(rtt), 0.16,
                                facecolor=tint(c, 0.22), edgecolor=c,
                                lw=0.8, zorder=3))
-        txt(ax, X(rtt + d) + 0.16, yy + 0.075, name, fs=FS_S - 1.4, ha="left")
+        txt(ax, X(368), yy + 0.08, name, fs=FS_S - 1.2, ha="left")
     txt(ax, x0 - 0.12, y_p + hh / 2, "并行", fs=FS_S, ha="right",
         weight="bold")
-    txt(ax, X(340) + 1.70, y_p + hh / 2, "340 ms", fs=FS_S - 0.4, ha="left",
+    ax.plot([X(340), X(340)], [y_p - 0.06, y_p + hh + 0.06], color=NAVY,
+            lw=0.8, zorder=5)
+    txt(ax, X(340), y_p - 0.34, "340 ms", fs=FS_S - 0.4, ha="center",
         color=NAVY, weight="bold")
-    ax.plot([X(340), X(340)], [y_p - 0.06, y_p + hh + 0.06], color=NAVY, lw=0.8,
-            zorder=5)
 
     ay = 1.78
     ax.plot([X(0), X(900)], [ay, ay], color=GRAY, lw=0.7, zorder=2)
@@ -680,6 +689,46 @@ def fig_07_parallel():
     note(ax, 5.05, 0.42, "并行的等待取最长者，成本仍按三次调用付", fs=FS_S - 0.8)
 
     save(fig, "07/parallel.png")
+
+
+# ---------------------------------------------------------------- 06 归因变化
+
+def fig_06_attrib():
+    """第 6 章：第一周与第四周的错误归因分布。"""
+    fig, ax = canvas(1.95)
+
+    cats = [("切块切碎", [34, 12], RED),
+            ("召回没命中", [21, 31], NAVY),
+            ("排序靠后", [12, 22], GOLD),
+            ("库里没有", [25, 19], TEAL),
+            ("生成问题", [8, 16], NAVY_L)]
+
+    x0, span = 1.62, 7.55
+    for row, (label, y) in enumerate([("第 1 周", 2.86), ("第 4 周", 2.00)]):
+        x = x0
+        for name, vals, c in cats:
+            v = vals[row]
+            w = span * v / 100.0
+            ax.add_patch(Rectangle((x, y), w, 0.54,
+                                   facecolor=tint(c, 0.26),
+                                   edgecolor=c, lw=0.8, zorder=3))
+            if v >= 12:
+                txt(ax, x + w / 2, y + 0.27, f"{v}%", fs=FS_S - 0.6)
+            x += w
+        txt(ax, x0 - 0.14, y + 0.27, label, fs=FS_S - 0.4, ha="right")
+
+    for i, (name, _, c) in enumerate(cats):
+        lx = 0.35 + (i % 3) * 3.35
+        ly = 1.28 - (i // 3) * 0.44
+        ax.add_patch(Rectangle((lx, ly), 0.26, 0.20,
+                               facecolor=tint(c, 0.26), edgecolor=c,
+                               lw=0.8, zorder=3))
+        txt(ax, lx + 0.40, ly + 0.10, name, fs=FS_S - 1.2, ha="left")
+
+    note(ax, 5.20, 0.42, "切块修好后，“排序靠后”与“生成问题”的比例上升",
+         fs=FS_S - 1.0)
+
+    save(fig, "06/attribution.png")
 
 
 FIGS = {
@@ -695,6 +744,7 @@ FIGS = {
     "08": fig_08_loop,
     "09": fig_09_state,
     "10": fig_10_drift,
+    "attrib": fig_06_attrib,
 }
 
 

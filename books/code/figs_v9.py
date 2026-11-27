@@ -396,13 +396,250 @@ def fig_09_unify():
     save(fig, "09/three-ways.png")
 
 
+# ---------------------------------------------------------------- 01b 账单
+
+def fig_01_cost():
+    """第 1 章：同一份文件，三种预处理的账单与单张延迟。"""
+    fig, ax = canvas(2.96)
+
+    txt(ax, 5.20, 5.70, "同一份文件，三种预处理的账单", fs=FS + 0.8)
+    note(ax, 5.20, 5.42, "单价取每百万 token 三美元，延迟按 70 亿参数模型估")
+
+    groups = [
+        ("A4 扫描", [(44678, "134 美元 · 1.6 s"), (3796, "11 · 0.13 s"),
+                     (949, "2.8 · 0.03 s")]),
+        ("商品图 2000²", [(20164, "60 · 0.71 s"), (5329, "16 · 0.19 s"),
+                          (1332, "4.0 · 0.05 s")]),
+        ("截图 1080×2400", [(13167, "40 · 0.46 s"), (2409, "7.2 · 0.08 s"),
+                            (602, "1.8 · 0.02 s")]),
+    ]
+    styles = [("直送", NAVY), ("长边 1024", TEAL), ("合并 2×2", GOLD)]
+
+    x0, x1 = 2.16, 6.92
+    vmax = 46000.0
+
+    def xpos(n):
+        return x0 + n / vmax * (x1 - x0)
+
+    y = 4.64
+    bh, gap = 0.24, 0.06
+    for name, rows in groups:
+        note(ax, 0.16, y - 0.57, name, fs=FS_S - 0.4, ha="left", color=INK)
+        for (n, cost), (lab, color) in zip(rows, styles):
+            box(ax, x0, y - bh / 2, max(xpos(n) - x0, 0.02), bh, "",
+                fc=tint(color, 0.22), ec=color, lw=0.7, rounded=0.02)
+            note(ax, xpos(n) + 0.09, y, f"{n:,}", fs=FS_S - 0.8,
+                 ha="left", color=GRAY)
+            note(ax, 8.06, y, cost, fs=FS_S - 0.7, ha="left", color=INK)
+            y -= bh + gap
+        y -= 0.32
+
+    ax.plot([x0, x1], [1.06, 1.06], color=GRAY, lw=0.7)
+    for n in (0, 10000, 20000, 30000, 40000):
+        ax.plot([xpos(n), xpos(n)], [1.06, 1.00], color=GRAY, lw=0.6)
+        note(ax, xpos(n), 0.84, f"{n // 1000}k" if n else "0", fs=FS_S - 0.8)
+    note(ax, (x0 + x1) / 2, 0.50, "token 数", fs=FS_S - 0.6)
+    note(ax, 8.06, 0.84, "千张成本 · 单张延迟", fs=FS_S - 0.8, ha="left",
+         color=GRAY)
+
+    lx = 2.28
+    for lab, color in styles:
+        ax.add_patch(plt.Rectangle((lx, 5.02), 0.20, 0.16,
+                                   facecolor=tint(color, 0.22), edgecolor=color,
+                                   lw=0.7, zorder=3))
+        note(ax, lx + 0.28, 5.10, lab, fs=FS_S - 0.8, ha="left")
+        lx += 0.20 + len(lab) * 0.21 + 0.44
+
+    save(fig, "01/cost.png")
+
+
+def fig_04_budget():
+    """第 4 章：流式识别的延迟拆成五块，加起来才是用户看到字的时间。"""
+    fig, ax = canvas(2.52)
+
+    txt(ax, 5.20, 4.72, "流式识别的一次延迟", fs=FS + 0.8)
+    note(ax, 5.20, 4.44, "320 毫秒一块、前瞻两帧、等两块确认")
+
+    steps = [
+        ("音频攒块", 320, NAVY),
+        ("前瞻", 200, NAVY_L),
+        ("编码", 30, TEAL),
+        ("解码", 20, GOLD),
+        ("等确认", 320, RED),
+    ]
+    total = sum(s[1] for s in steps)
+    xl, xr = 1.32, 9.94
+    scale = (xr - xl) / total
+
+    base, top = 2.18, 3.42
+    acc = 0.0
+    for name, ms, color in steps:
+        xa = xl + acc * scale
+        w = ms * scale
+        box(ax, xa, base, w, top - base, "", fc=tint(color, 0.22),
+            ec=color, lw=0.8, rounded=0.02)
+        if w > 1.40:
+            txt(ax, xa + w / 2, (base + top) / 2, f"{ms} ms", fs=FS_S - 0.4)
+        acc += ms
+
+    for center, name in ((320, "音频攒块"), (520, "前瞻"), (750, "等确认")):
+        note(ax, xl + center * scale, top + 0.24, name, fs=FS_S - 0.4,
+             color=INK)
+
+    # 两个小块（编码、解码）用引线合起来说
+    x30 = xl + 522 * scale
+    x50 = xl + 550 * scale
+    note(ax, 7.62, 3.86, "编码加解码 50", fs=FS_S - 0.7, color=TEAL)
+    ax.plot([7.28, x50], [3.76, 3.48], color=TEAL, lw=0.6, ls=":")
+
+    ax.plot([xl, xr], [base - 0.10, base - 0.10], color=GRAY, lw=0.8)
+    xe = xl + total * scale
+    ax.plot([xl, xe], [base - 0.30, base - 0.30], color=INK, lw=0.9)
+    for xb in (xl, xe):
+        ax.plot([xb, xb], [base - 0.36, base - 0.24], color=INK, lw=0.9)
+    note(ax, (xl + xe) / 2, base - 0.56,
+         "合计 890 ms，用户才开始看到稳定的字", fs=FS_S - 0.3)
+
+    note(ax, 5.20, 1.08, "块缩到 160 毫秒、前瞻一帧，总延迟约 400 毫秒",
+         fs=FS_S - 0.4)
+    note(ax, 5.20, 0.74, "但每块看到的上下文变短，字错率会升一个多点",
+         fs=FS_S - 0.4, color=NAVY)
+    note(ax, 5.20, 0.32, "真实占用最大的不是算力，是等待：644 毫秒花在攒数据和等确认上",
+         fs=FS_S - 0.6, color=GRAY)
+
+    save(fig, "04/budget.png")
+
+
+def fig_05_gens():
+    """第 5 章：四代做法各占一个角，横轴自然度，纵轴可控性。"""
+    fig, ax = canvas(2.66)
+
+    txt(ax, 5.20, 5.08, "四代做法各占一个角", fs=FS + 0.8)
+    note(ax, 5.20, 4.80, "横轴自然度，纵轴可控性，标注为单卡实时率量级")
+
+    xl, xr = 1.66, 8.62
+    yb, yt = 1.34, 4.24
+
+    ax.plot([xl, xr], [yb, yb], color=GRAY, lw=0.8)
+    ax.plot([xl, xl], [yb, yt], color=GRAY, lw=0.8)
+    note(ax, (xl + xr) / 2, yb - 0.30, "自然度 →", fs=FS_S - 0.4)
+    note(ax, xl - 0.18, (yb + yt) / 2, "可控性 →", fs=FS_S - 0.4, rotation=90)
+
+    pts = [
+        ("拼接", 2.78, 2.46, GRAY, "音质好，语调死\n换音色要重录", "RTF 高"),
+        ("参数式", 3.92, 3.72, TEAL, "什么都能读\n听着闷", "RTF 高"),
+        ("端到端", 7.06, 2.98, NAVY, "安静环境下接近真人\n长文本会漂", "RTF 0.03 到 0.5"),
+        ("码本", 7.94, 3.94, GOLD, "能笑、能插话\n慢四倍以上", "RTF 约为 4"),
+    ]
+    for name, px, py, color, desc, rtf in pts:
+        ax.plot([px], [py], marker="o", ms=6.5, color=color, zorder=9)
+        txt(ax, px, py + 0.24, name, fs=FS - 0.3, color=color, weight="bold")
+        note(ax, px, py - 0.46, desc, fs=FS_S - 1.0, color=INK)
+        note(ax, px, py - 0.86, rtf, fs=FS_S - 1.0, color=GRAY)
+
+    note(ax, 5.20, 0.40,
+         "四代不是替代关系：今天四种都在线上跑，只是场景不同",
+         fs=FS_S - 0.4, color=NAVY)
+
+    save(fig, "05/gens.png")
+
+
+def fig_06_lipsync():
+    """第 6 章：先音后画与先画后配，两条路的代价不一样。"""
+    fig, ax = canvas(2.24)
+
+    txt(ax, 5.20, 4.12, "配音与口型，谁先定", fs=FS + 0.8)
+    note(ax, 5.20, 3.86, "先定的那个决定时长，后走的那个只能迁就")
+
+    def row(y, items, color, tag):
+        note(ax, 0.16, y + 0.17, tag, fs=FS_S - 0.6, ha="left", color=color)
+        bw, bh, gx = 1.90, 0.46, 0.30
+        x = 1.46
+        for k, s in enumerate(items):
+            box(ax, x, y, bw, bh, s, fc=tint(color, 0.14), ec=color,
+                fs=FS_S - 0.7, rounded=0.04)
+            if k < len(items) - 1:
+                arrow(ax, (x + bw, y + bh / 2), (x + bw + gx, y + bh / 2),
+                      color=color, lw=0.9)
+            x += bw + gx
+
+    row(2.72, ["脚本", "先合成配音", "按音频驱动画面", "成片"],
+        NAVY, "先音后画")
+    note(ax, 5.20, 2.56, "口型天然对齐，改一句词就要重画整段",
+         fs=FS_S - 0.6, color=GRAY)
+
+    row(1.52, ["脚本", "先生成画面", "按口型写配音", "成片"],
+        GOLD, "先画后配")
+    note(ax, 5.20, 1.36, "画面不用重算，但台词得塞进已有口型里",
+         fs=FS_S - 0.6, color=GRAY)
+
+    note(ax, 5.20, 0.86, "翻配与译制走上面，广告与短剧走下面",
+         fs=FS_S - 0.5, color=INK)
+    note(ax, 5.20, 0.54, "判断依据只有一条：谁能被便宜地重算",
+         fs=FS_S - 0.5, color=NAVY)
+
+    save(fig, "06/lipsync.png")
+
+
+def fig_07_guide():
+    """第 7 章：引导系数往上推，贴合变好、多样性变差、高段开始崩。"""
+    fig, ax = canvas(2.34)
+
+    txt(ax, 5.20, 4.40, "一个旋钮，三条曲线", fs=FS + 0.8)
+    note(ax, 5.20, 4.12, "引导系数从 1 推到 15 时同时发生的事")
+
+    xl, xr = 1.62, 8.30
+    yb, yt = 1.10, 3.72
+
+    def xpos(w):
+        return xl + (w - 1) / 14 * (xr - xl)
+
+    def ypos(v):
+        return yb + v * (yt - yb)
+
+    ax.add_patch(plt.Rectangle((xpos(5), yb), xpos(9) - xpos(5), yt - yb,
+                               facecolor=tint(GOLD, 0.12), edgecolor="none",
+                               zorder=1))
+    note(ax, (xpos(5) + xpos(9)) / 2, yt + 0.20, "常用区间 5 到 9",
+         fs=FS_S - 0.6, color=GOLD)
+
+    fit, div, sat = [], [], []
+    for k in range(0, 57):
+        w = 1 + k / 4
+        fit.append((xpos(w), ypos(1 - math.exp(-(w - 1) / 2.6))))
+        div.append((xpos(w), ypos(0.94 * math.exp(-(w - 1) / 4.2))))
+        s = ((w - 6.2) / 8.4) ** 2
+        sat.append((xpos(w), ypos(min(0.78, max(0.0, s)))))
+
+    ax.plot([p[0] for p in fit], [p[1] for p in fit], color=NAVY, lw=1.4)
+    ax.plot([p[0] for p in div], [p[1] for p in div], color=TEAL, lw=1.4)
+    ax.plot([p[0] for p in sat], [p[1] for p in sat], color=RED, lw=1.4)
+
+    txt(ax, 8.42, 3.46, "贴合提示", fs=FS_S - 0.5, color=NAVY, ha="left")
+    txt(ax, 8.42, 1.26, "多样性", fs=FS_S - 0.5, color=TEAL, ha="left")
+    txt(ax, 8.42, 2.82, "过饱和", fs=FS_S - 0.5, color=RED, ha="left")
+
+    ax.plot([xl, xr], [yb, yb], color=GRAY, lw=0.8)
+    ax.plot([xl, xl], [yb, yt], color=GRAY, lw=0.8)
+    for w in (1, 5, 9, 15):
+        note(ax, xpos(w), yb - 0.26, str(w), fs=FS_S - 0.7)
+    note(ax, (xl + xr) / 2, yb - 0.58, "引导系数 w", fs=FS_S - 0.6)
+
+    note(ax, 5.20, 0.22,
+         "每推一次 w，单步要多算一次无条件前向，成本按这个比例变",
+         fs=FS_S - 0.5, color=GRAY)
+
+    save(fig, "07/guide.png")
+
+
 FIGS = {
-    "01": fig_01_tokens,
+    "01": [fig_01_tokens, fig_01_cost],
     "02": fig_02_contrast,
     "03": fig_03_stages,
-    "04": fig_04_ctc,
-    "06": fig_06_video,
-    "07": fig_07_diffusion,
+    "04": [fig_04_ctc, fig_04_budget],
+    "05": fig_05_gens,
+    "06": [fig_06_video, fig_06_lipsync],
+    "07": [fig_07_diffusion, fig_07_guide],
     "08": fig_08_flow,
     "09": fig_09_unify,
 }
@@ -411,7 +648,9 @@ FIGS = {
 def main(argv):
     keys = [a for a in argv[1:] if not a.startswith("-")] or list(FIGS)
     for k in keys:
-        FIGS[k]()
+        fns = FIGS[k]
+        for fn in (fns if isinstance(fns, list) else [fns]):
+            fn()
 
 
 if __name__ == "__main__":

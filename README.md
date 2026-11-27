@@ -15,16 +15,16 @@
 | 册 | 书名 | 一句话 | 页数 | 在线阅读 | PDF |
 | --- | --- | --- | ---: | --- | --- |
 | 01 | [入门篇](books/v1-intro/README.md) | 大模型是什么：零公式纵览全貌 | 220 | [阅读](books/v1-intro/README.md) | <a href="output/v1-intro.pdf" target="_blank" rel="noopener" data-router-ignore>下载</a> |
-| 02 | [基础篇](books/v2-basics/README.md) | 从预测下一个词到 Transformer | 157 | [阅读](books/v2-basics/README.md) | <a href="output/v2-basics.pdf" target="_blank" rel="noopener" data-router-ignore>下载</a> |
-| 03 | [预训练篇](books/v3-pretrain/README.md) | 数据、词表与规模 | 151 | [阅读](books/v3-pretrain/README.md) | <a href="output/v3-pretrain.pdf" target="_blank" rel="noopener" data-router-ignore>下载</a> |
-| 04 | [架构改造篇](books/v4-architecture/README.md) | 注意力、归一化与专家网络 | 125 | [阅读](books/v4-architecture/README.md) | <a href="output/v4-architecture.pdf" target="_blank" rel="noopener" data-router-ignore>下载</a> |
+| 02 | [基础篇](books/v2-basics/README.md) | 从预测下一个词到 Transformer | 232 | [阅读](books/v2-basics/README.md) | <a href="output/v2-basics.pdf" target="_blank" rel="noopener" data-router-ignore>下载</a> |
+| 03 | [预训练篇](books/v3-pretrain/README.md) | 数据、词表与规模 | 220 | [阅读](books/v3-pretrain/README.md) | <a href="output/v3-pretrain.pdf" target="_blank" rel="noopener" data-router-ignore>下载</a> |
+| 04 | [架构改造篇](books/v4-architecture/README.md) | 注意力、归一化与专家网络 | 200 | [阅读](books/v4-architecture/README.md) | <a href="output/v4-architecture.pdf" target="_blank" rel="noopener" data-router-ignore>下载</a> |
 | 05 | [对齐篇](books/v5-alignment/README.md) | 从 SFT 到 Agent 后训练 | 164 | [阅读](books/v5-alignment/README.md) | <a href="output/v5-alignment.pdf" target="_blank" rel="noopener" data-router-ignore>下载</a> |
 | 06 | [安全与攻破篇](books/v6-safety/README.md) | 红队、越狱、投毒与防御 | 137 | [阅读](books/v6-safety/README.md) | <a href="output/v6-safety.pdf" target="_blank" rel="noopener" data-router-ignore>下载</a> |
 | 07 | [推理与部署篇](books/v7-inference/README.md) | 引擎、压缩与投机解码 | 137 | [阅读](books/v7-inference/README.md) | <a href="output/v7-inference.pdf" target="_blank" rel="noopener" data-router-ignore>下载</a> |
-| 08 | [应用与 Agent 系统篇](books/v8-apps/README.md) | 检索、工具与智能体 | 124 | [阅读](books/v8-apps/README.md) | <a href="output/v8-apps.pdf" target="_blank" rel="noopener" data-router-ignore>下载</a> |
-| 09 | [多模态与生成篇](books/v9-multimodal/README.md) | 视觉、语音与扩散 | 108 | [阅读](books/v9-multimodal/README.md) | <a href="output/v9-multimodal.pdf" target="_blank" rel="noopener" data-router-ignore>下载</a> |
+| 08 | [应用与 Agent 系统篇](books/v8-apps/README.md) | 检索、工具与智能体 | 200 | [阅读](books/v8-apps/README.md) | <a href="output/v8-apps.pdf" target="_blank" rel="noopener" data-router-ignore>下载</a> |
+| 09 | [多模态与生成篇](books/v9-multimodal/README.md) | 视觉、语音与扩散 | 191 | [阅读](books/v9-multimodal/README.md) | <a href="output/v9-multimodal.pdf" target="_blank" rel="noopener" data-router-ignore>下载</a> |
 | 10 | [训练系统篇](books/v10-systems/README.md) | 并行、显存与通信 | 167 | [阅读](books/v10-systems/README.md) | <a href="output/v10-systems.pdf" target="_blank" rel="noopener" data-router-ignore>下载</a> |
-| 11 | [可解释性与评测篇](books/v11-interpret/README.md) | 看得懂与测得准 | 106 | [阅读](books/v11-interpret/README.md) | <a href="output/v11-interpret.pdf" target="_blank" rel="noopener" data-router-ignore>下载</a> |
+| 11 | [可解释性与评测篇](books/v11-interpret/README.md) | 看得懂与测得准 | 190 | [阅读](books/v11-interpret/README.md) | <a href="output/v11-interpret.pdf" target="_blank" rel="noopener" data-router-ignore>下载</a> |
 
 ## 怎么读
 

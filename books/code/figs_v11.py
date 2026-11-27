@@ -77,6 +77,48 @@ def save(fig, rel: str):
         print(f"saved {dst.relative_to(ROOT)}  {im.width}×{im.height} px")
 
 
+# ---------------------------------------------------------------- 01 诊断阶梯
+
+def fig_01_ladder():
+    """第 1 章：四层的成本阶梯，以及每层能排除什么。"""
+    fig, ax = canvas(2.72)
+
+    txt(ax, 0.22, 5.14, "层次", fs=FS_S - 0.4, color=GRAY, ha="left")
+    txt(ax, 1.66, 5.14, "典型耗时", fs=FS_S - 0.4, color=GRAY, ha="left")
+    txt(ax, 5.32, 5.14, "这一层能排除的假设", fs=FS_S - 0.4, color=GRAY, ha="left")
+    ax.plot([0.22, 10.16], [5.02, 5.02], color=LGRAY, lw=0.8, zorder=2)
+
+    rows = [
+        ("行为层", "2 小时", 2.0, "「不是数据缺，是策略问题」", NAVY),
+        ("表示层", "1 天", 8.0, "「信息进来了，只是没被取用」", TEAL),
+        ("组件层", "1 周", 40.0, "「别的地方顶不上，只有它在管」", GOLD),
+        ("电路层", "1 个月", 160.0, "只能验通一条路径，别的路仍在", RED),
+    ]
+
+    bx = 1.66
+    for i, (name, label, hours, what, color) in enumerate(rows):
+        y = 4.34 - i * 1.06
+        box(ax, 0.22, y, 1.30, 0.62, name, fc=tint(color, 0.12), ec=color,
+            lw=0.85, fs=FS - 0.9, weight="bold")
+        w = 0.34 * hours ** 0.4
+        ax.add_patch(plt.Rectangle((bx, y + 0.13), 2.74, 0.36,
+                                   facecolor=tint(NAVY_XL, 0.28),
+                                   edgecolor="none", zorder=2))
+        ax.add_patch(plt.Rectangle((bx, y + 0.13), w, 0.36,
+                                   facecolor=tint(color, 0.42), edgecolor=color,
+                                   lw=0.7, zorder=3))
+        note(ax, bx + w + 0.16, y + 0.31, label, fs=FS_S - 0.5, ha="left",
+             color=color)
+        note(ax, 5.32, y + 0.31, what, fs=FS_S - 0.5, ha="left")
+
+    note(ax, 5.20, 0.74, "往下每走一层，成本约涨五倍，能排除的东西从「一类」缩到「一条」",
+         fs=FS_S - 0.5)
+    note(ax, 5.20, 0.46, "上一层能排除的假设，不要带到下一层去查", fs=FS_S - 0.5,
+         color=NAVY)
+
+    save(fig, "01/diag_ladder.png")
+
+
 # ---------------------------------------------------------------- 02 探针
 
 def fig_02_probe():
@@ -135,6 +177,60 @@ def fig_02_probe():
          "只有加减目标方向才改变行为，才谈得上“这个方向在管这件事”", fs=FS_S - 0.4)
 
     save(fig, "02/probe_direction.png")
+
+
+# ---------------------------------------------------------------- 02b 层扫描
+
+def fig_02_sweep():
+    """第 2 章：层扫描要三条线一起画——目标、控制任务、打乱标签。"""
+    setup()
+    fig = plt.figure(figsize=(W, 2.62))
+    fig.patch.set_facecolor("white")
+    ax = fig.add_axes([0.135, 0.215, 0.825, 0.755])
+
+    layers = np.arange(0, 33)
+    target = 0.50 + 0.43 / (1.0 + np.exp(-(layers - 7.6) / 1.55))
+    target = target - 0.035 * np.clip(layers - 28, 0, 4)
+    control = 0.55 + 0.065 * layers / 32.0
+    rng = np.random.default_rng(7)
+    shuffled = 0.50 + rng.normal(0, 0.008, layers.size)
+
+    ax.fill_between(layers, 0.47, 0.53, color=tint(NAVY_XL, 0.55),
+                    edgecolor="none", zorder=1,
+                    label="打乱标签的 95% 带")
+    ax.plot(layers, control, color=GOLD, lw=1.3, marker="s", ms=2.0,
+            label="控制任务（长度）")
+    ax.plot(layers, target, color=NAVY, lw=1.4, marker="o", ms=2.0,
+            label="目标探针")
+    ax.plot(layers, shuffled, color=GRAY, lw=0.9, zorder=4,
+            label="打乱标签")
+
+    ax.axhline(0.5, color=GRAY, lw=0.7, ls=(0, (4, 3)), zorder=1)
+
+    x0 = 12.0
+    ax.annotate("", xy=(x0, 0.905), xytext=(x0, 0.640),
+                arrowprops=dict(arrowstyle="<|-|>", color=RED, lw=0.9,
+                                mutation_scale=7))
+    ax.text(x0 - 0.5, 0.775, "差值\n26 点", ha="right", va="center",
+            fontsize=6.4, color=RED, linespacing=1.3)
+
+    ax.annotate("控制任务 = 混杂上限", xy=(27.0, 0.605), xytext=(18.6, 0.715),
+                fontsize=6.2, color=GOLD, ha="left", va="center",
+                arrowprops=dict(arrowstyle="-", color=GOLD, lw=0.6,
+                                shrinkA=2, shrinkB=2,
+                                connectionstyle="arc3,rad=-0.2"))
+
+    ax.set_xlim(-1.0, 33.5)
+    ax.set_ylim(0.40, 1.06)
+    ax.set_xticks([0, 8, 16, 24, 32])
+    ax.set_yticks([0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
+    ax.set_xlabel("层号", labelpad=2)
+    ax.set_ylabel("探针准确率")
+    ax.legend(loc="upper left", frameon=False, fontsize=6.2,
+              handlelength=2.0, borderaxespad=0.5, ncol=1,
+              labelspacing=0.32)
+
+    save(fig, "02/layer_sweep.png")
 
 
 # ---------------------------------------------------------------- 03 SAE
@@ -376,6 +472,54 @@ def fig_06_contamination():
     save(fig, "06/contamination.png")
 
 
+# ---------------------------------------------------------------- 06b 校准
+
+def fig_06_calibration():
+    """第 6 章：判定模型的可靠性图，柱子是样本量，折线是实际通过率。"""
+    setup()
+    fig = plt.figure(figsize=(W, 2.55))
+    fig.patch.set_facecolor("white")
+    ax = fig.add_axes([0.135, 0.215, 0.700, 0.750])
+    ax2 = ax.twinx()
+
+    centers = np.array([0.55, 0.65, 0.75, 0.85, 0.95])
+    acc = np.array([0.58, 0.62, 0.70, 0.71, 0.78])
+    cnt = np.array([20, 45, 80, 120, 60])
+
+    ax2.bar(centers, cnt, width=0.088, color=tint(NAVY_XL, 0.42),
+            edgecolor=NAVY_L, lw=0.4, zorder=1)
+    ax2.set_ylim(0, 400)
+    ax2.set_yticks([0, 100, 200, 300])
+    ax2.set_ylabel("样本数", color=GRAY, fontsize=7.0)
+    ax2.tick_params(axis="y", labelsize=6.6, colors=GRAY)
+    ax2.spines["top"].set_visible(False)
+
+    ax.plot([0.45, 1.0], [0.45, 1.0], color=GRAY, lw=0.8, ls=(0, (4, 3)),
+            zorder=3)
+    ax.plot(centers, acc, color=RED, lw=1.4, marker="o", ms=2.6, zorder=5,
+            label="实际通过率")
+    ax.vlines(centers, acc, centers, color=RED, lw=0.7, ls=(0, (2, 2)),
+              zorder=4)
+
+    ax.text(1.005, 0.655, "判 0.95 的桶\n实际只过 78%", fontsize=6.2,
+            color=RED, ha="right", va="center", linespacing=1.4)
+
+    ax.text(0.455, 0.985, "ECE = 0.10", fontsize=7.2, color=NAVY,
+            ha="left", va="top", weight="bold")
+    ax.text(0.455, 0.945, "等于各桶偏差按样本量加权平均", fontsize=6.2,
+            color=GRAY, ha="left", va="top")
+
+    ax.set_xlim(0.45, 1.02)
+    ax.set_ylim(0.45, 1.02)
+    ax.set_xticks([0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
+    ax.set_yticks([0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
+    ax.set_xlabel("判定模型给出的分数", labelpad=2)
+    ax.set_ylabel("人工判定通过率")
+    ax.grid(True, color=LGRAY, lw=0.4, alpha=0.7)
+
+    save(fig, "06/calibration.png")
+
+
 # ---------------------------------------------------------------- 07 三级评测
 
 def fig_07_stack():
@@ -411,8 +555,101 @@ def fig_07_stack():
     save(fig, "07/eval_stack.png")
 
 
+# ---------------------------------------------------------------- 07b 功效
+
+def fig_07_power():
+    """第 7 章：样本量与能分辨的最小差异（80% 功效、双侧 5%）。"""
+    setup()
+    fig = plt.figure(figsize=(W, 2.52))
+    fig.patch.set_facecolor("white")
+    ax = fig.add_axes([0.135, 0.215, 0.775, 0.755])
+
+    n = np.logspace(2, 6, 240)
+    z = 1.96 + 0.84
+
+    series = [(0.12, RED, "基线 12%（低频行为）"),
+              (0.50, NAVY, "基线 50%（成对比较）"),
+              (0.80, GOLD, "基线 80%（已成熟的问答）")]
+    for p, color, label in series:
+        mde = 100.0 * z * np.sqrt(2.0 * p * (1.0 - p) / n)
+        ax.plot(n, mde, color=color, lw=1.35, label=label)
+
+    marks = [(300, 0.12), (3000, 0.12), (46000, 0.12)]
+    lines = []
+    for nn, p in marks:
+        mde = 100.0 * z * np.sqrt(2.0 * p * (1.0 - p) / nn)
+        ax.plot([nn], [mde], color=RED, marker="o", ms=3.2, zorder=6)
+        ax.vlines(nn, 0.25, mde, color=RED, lw=0.7, ls=(0, (2, 2)),
+                  alpha=0.75, zorder=3)
+        lines.append(f"{nn:,} 条  →  {mde:.1f} 点")
+
+    ax.text(1.08e2, 0.92, "\n".join(lines), fontsize=6.4, color=RED,
+            ha="left", va="top", linespacing=1.6)
+
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xlim(100, 1e6)
+    ax.set_ylim(0.25, 30)
+    ax.set_yticks([0.3, 1, 3, 10, 30])
+    ax.set_yticklabels(["0.3", "1", "3", "10", "30"])
+    ax.set_xlabel("每组样本量", labelpad=2)
+    ax.set_ylabel("能分辨的最小差异（百分点）")
+    ax.grid(True, which="major", color=LGRAY, lw=0.45, alpha=0.8)
+    ax.legend(loc="upper right", frameon=False, fontsize=6.4,
+              handlelength=2.0, borderaxespad=0.4)
+
+
+
+    save(fig, "07/power_curve.png")
+
+
+# ---------------------------------------------------------------- 08 串联防线
+
+def fig_08_chain():
+    """第 8 章：三层防线串联，漏过率相乘、代价相加。"""
+    fig, ax = canvas(2.05)
+
+    stages = [
+        ("输入侧", "规则 + 分类器", "漏 30%", "误拒 1.0%", NAVY),
+        ("表示侧", "方向 / 特征监控", "漏 50%", "误拒 2.0%", TEAL),
+        ("输出侧", "过滤 + 判定模型", "漏 20%", "误拒 0.5%", GOLD),
+    ]
+
+    bw, bh, gap = 2.34, 0.92, 0.52
+    x = 0.42
+    for i, (name, how, miss, cost, color) in enumerate(stages):
+        box(ax, x, 2.62, bw, bh, "", fc=tint(color, 0.10), ec=color, lw=0.9)
+        txt(ax, x + bw / 2, 3.33, name, fs=FS - 0.7, weight="bold")
+        note(ax, x + bw / 2, 3.05, how, fs=FS_S - 0.9)
+        note(ax, x + bw / 2, 2.79, miss, fs=FS_S - 0.5, color=color)
+        note(ax, x + bw / 2, 2.36, cost, fs=FS_S - 0.9)
+        if i < 2:
+            arrow(ax, (x + bw + 0.04, 3.08), (x + bw + gap - 0.04, 3.08), lw=0.9)
+        x += bw + gap
+
+    arrow(ax, (8.52, 3.08), (9.18, 3.08), lw=0.9)
+    note(ax, 9.66, 3.20, "放行", fs=FS - 0.6, color=RED)
+    note(ax, 9.62, 2.94, "3%", fs=13.0, color=RED, weight="bold")
+
+    ax.plot([0.42, 9.92], [2.14, 2.14], color=LGRAY, lw=0.8, zorder=2)
+
+    txt(ax, 5.20, 1.84, "0.30 × 0.50 × 0.20 = 0.030", fs=FS + 0.4)
+    note(ax, 5.20, 1.52, "漏过率相乘：三层都漏才出事，所以是乘法", fs=FS_S - 0.4)
+    note(ax, 5.20, 1.24, "1.0% + 2.0% + 0.5% = 3.5%", fs=FS_S - 0.2, color=RED)
+    note(ax, 5.20, 0.96, "误拒率相加：任一层误杀，用户都会看到拒绝", fs=FS_S - 0.4)
+    note(ax, 5.20, 0.58, "这就是「收益相乘、代价相加」：多一层挡的攻击变少，误杀的痛是累加的",
+         fs=FS_S - 0.6)
+
+    save(fig, "08/defense_chain.png")
+
+
 FIGS = {
+    "01": fig_01_ladder,
     "02": fig_02_probe,
+    "02b": fig_02_sweep,
+    "06b": fig_06_calibration,
+    "07b": fig_07_power,
+    "08": fig_08_chain,
     "03": fig_03_sae,
     "04": fig_04_induction,
     "05": fig_05_lens,

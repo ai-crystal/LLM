@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-r"""《大模型技术全景 · 基础篇》（第二卷）插图，共 5 张。
+r"""《大模型技术全景 · 基础篇》（第二卷）插图，共 10 个文件 11 张图。
 
 运行：
     python books/code/figs_v2.py          # 全部重画
@@ -9,9 +9,14 @@ r"""《大模型技术全景 · 基础篇》（第二卷）插图，共 5 张。
     books/v2-basics/images/01/ngram-sparsity.png
     books/v2-basics/images/03/rnn-unroll.png
     books/v2-basics/images/03/lstm-unroll.png
+    books/v2-basics/images/03/bptt-decay.png
     books/v2-basics/images/04/additive-attention.png
     books/v2-basics/images/05/qkv.png
+    books/v2-basics/images/05/causal-mask.png
+    books/v2-basics/images/06/residual-add.png
     books/v2-basics/images/07/multihead.png
+    books/v2-basics/images/08/rope-rotate.png
+    books/v2-basics/images/11/param-breakdown.png
 
 尺寸约定：
     画布宽 5.2 in ≈ 132 mm，与正文版心（130 mm）一致，所以图上字号
@@ -23,9 +28,14 @@ r"""《大模型技术全景 · 基础篇》（第二卷）插图，共 5 张。
     01  n-gram 组合数 vs 语料覆盖 —— 柱间空白就是零概率
     03  RNN 沿时间展开 —— 蓝色前向、红色 BPTT 回流
     03b LSTM 沿时间展开 —— c 是加法传送带，h 仍要过矩阵
+    03c 梯度模长 vs 回溯步数 —— 谱半径决定斜率
     04  加性注意力 —— 解码器状态对 4 个编码器状态的权重
     05  Q/K/V —— 从 T×d 到 T×p，再到 T×T 的注意力矩阵
+    05b 因果掩码 —— softmax 前后，上三角归零、每行和为 1
+    06  残差加法 —— 一条宽度不变的通道，每层只写一个增量
     07  多头 —— d 切成 4 头，各自注意力，拼接后乘 W^O 混合
+    08  RoPE —— q、k 各按位置旋转，点积里只剩角度差
+    11  参数分解 —— 7B 与 70B 的参数按部件拆开
 """
 from __future__ import annotations
 
@@ -591,15 +601,321 @@ def fig_07_multihead():
     save(fig, "07/multihead.png")
 
 
+# ---------------------------------------------------------------- 03 梯度衰减
+
+def fig_03_bptt():
+    """第 3 章：梯度模长随回溯步数衰减，谱半径决定衰减速度。"""
+    setup()
+    fig = plt.figure(figsize=(W, 2.95))
+    fig.patch.set_facecolor("white")
+    ax = fig.add_axes([0.135, 0.215, 0.845, 0.575])
+
+    d = np.arange(1, 41)
+    curves = [(0.85, NAVY, "-"), (0.95, TEAL, "-"),
+              (1.00, GRAY, (0, (4, 2.5))), (1.05, RED, "-")]
+    for rho, col, ls in curves:
+        ax.plot(d, rho ** d, color=col, lw=1.3, ls=ls, zorder=4,
+                label=r"$\rho=%s$" % f"{rho:.2f}")
+
+    ax.set_yscale("log")
+    ax.set_ylim(3e-4, 60)
+    ax.set_xlim(0, 41)
+
+    ax.axhline(1e-2, color=LGRAY, lw=0.7, ls=(0, (2, 3)), zorder=1)
+    ax.text(1.4, 1.30e-2, "这条线以下，底层收不到有效梯度", fontsize=6.8,
+            color=GRAY, ha="left", va="bottom")
+
+    ax.annotate(r"$0.85^{40}=1.5\times10^{-3}$", xy=(40, 0.85 ** 40),
+                xytext=(26.0, 2.6e-3), fontsize=6.6, color=NAVY,
+                arrowprops=dict(arrowstyle="-", color=NAVY, lw=0.6))
+    ax.annotate(r"$1.05^{40}=7.0$：爆", xy=(40, 1.05 ** 40),
+                xytext=(31.5, 11.0), fontsize=6.6, color=RED,
+                arrowprops=dict(arrowstyle="-", color=RED, lw=0.6))
+
+    ax.set_xlabel("回溯的步数", fontsize=FS, labelpad=2)
+    ax.set_ylabel(r"$\|\partial L/\partial h\|$（相对值）", fontsize=FS, labelpad=2)
+    ax.tick_params(axis="both", length=2.5, width=0.6, color=GRAY, pad=2)
+    ax.spines["left"].set_color(GRAY)
+    ax.spines["bottom"].set_color(GRAY)
+
+    fig.text(0.5, 0.962, r"每退一步乘一次同一张 $W^{\top}$，模长按谱半径的幂走",
+             fontsize=FS + 0.5, color=INK, ha="center", va="center")
+    fig.text(0.5, 0.905,
+             "LSTM 的 $c$ 通道把这一步从矩阵乘换成逐元素乘门值，",
+             fontsize=FS_S, color=GRAY, ha="center", va="center")
+    fig.text(0.5, 0.858,
+             r"$f_t$ 可学、偏置初值取正，等于把曲线从 $\rho=0.95$ 抬到 $0.99$ 那一档",
+             fontsize=FS_S, color=GRAY, ha="center", va="center")
+
+    ax.legend(loc="lower left", bbox_to_anchor=(0.005, 0.02), ncol=2,
+              frameon=False, fontsize=6.8, handlelength=1.6,
+              columnspacing=1.0, handletextpad=0.4)
+
+    save(fig, "03/bptt-decay.png")
+
+
+# ---------------------------------------------------------------- 05 因果掩码
+
+def fig_05_mask():
+    """第 5 章：掩码加在 softmax 之前，上三角精确归零、每行仍和为 1。"""
+    fig, ax = canvas(2.62)
+    n, cell = 6, 0.45
+    rng = np.random.default_rng(7)
+    S = np.round(rng.normal(0, 1.15, (n, n)) * 2) / 2
+
+    g1x, g2x, gy = 0.95, 4.55, 1.58
+    side = n * cell
+
+    # ---- 左：softmax 之前的分数，右上角被遮
+    for i in range(n):
+        for j in range(n):
+            x = g1x + j * cell
+            y = gy + (n - 1 - i) * cell
+            if j > i:
+                ax.add_patch(Rectangle((x, y), cell, cell, facecolor="#EEEEF1",
+                                       edgecolor=NAVY_XL, linewidth=0.3,
+                                       hatch="//////", zorder=3))
+                txt(ax, x + cell / 2, y + cell / 2, r"$-\infty$", fs=6.4,
+                    color=GRAY)
+            else:
+                v = S[i, j]
+                f = 0.12 + 0.52 * min(1.0, abs(v) / 2.0)
+                ax.add_patch(Rectangle((x, y), cell, cell, facecolor=tint(NAVY, f),
+                                       edgecolor="white", linewidth=0.5, zorder=3))
+                sv = f"{v:.1f}".replace("-0.0", "0.0")
+                txt(ax, x + cell / 2, y + cell / 2, sv, fs=6.2,
+                    color="white" if f > 0.45 else INK)
+        txt(ax, g1x - 0.14, gy + (n - 1 - i) * cell + cell / 2, f"{i + 1}",
+            fs=6.2, color=GRAY, ha="right")
+
+    plate(ax, g1x, gy, side, side)
+    txt(ax, g1x + side / 2, gy + side + 0.42, r"$S$：softmax 之前", fs=FS - 0.3)
+    note(ax, g1x + side / 2, gy + side + 0.16, r"右上角填 $-\infty$", fs=6.6,
+         color=RED)
+    txt(ax, g1x - 0.42, gy + side / 2, r"查询 $i$", fs=7.2, color=INK, rot=90)
+    txt(ax, g1x + side / 2, gy - 0.34, r"键 $j$；行首数字＝这一行能看的键数",
+        fs=6.2, color=GRAY)
+
+    # ---- 中间：加掩码、逐行 softmax
+    arrow(ax, (g1x + side + 0.10, gy + side / 2), (g2x - 0.10, gy + side / 2),
+          lw=0.9, shrink=0)
+    note(ax, (g1x + side + g2x) / 2, gy + side / 2 + 0.38, "逐行", fs=6.6)
+    note(ax, (g1x + side + g2x) / 2, gy + side / 2 + 0.16, "softmax", fs=6.6)
+
+    # ---- 右：softmax 之后
+    for i in range(n):
+        row = np.array([np.exp(S[i, j]) if j <= i else 0.0 for j in range(n)])
+        row = row / row.sum()
+        for j in range(n):
+            x = g2x + j * cell
+            y = gy + (n - 1 - i) * cell
+            a = row[j]
+            if j > i:
+                ax.add_patch(Rectangle((x, y), cell, cell, facecolor="white",
+                                       edgecolor=NAVY_XL, linewidth=0.3, zorder=3))
+                txt(ax, x + cell / 2, y + cell / 2, "0", fs=6.4, color=LGRAY)
+            else:
+                f = 0.10 + 0.80 * min(1.0, a / 0.55)
+                ax.add_patch(Rectangle((x, y), cell, cell, facecolor=tint(NAVY, f),
+                                       edgecolor="white", linewidth=0.5, zorder=3))
+                txt(ax, x + cell / 2, y + cell / 2, f"{a:.2f}".lstrip("0"),
+                    fs=5.8, color="white" if f > 0.45 else INK)
+        txt(ax, g2x + side + 0.10, gy + (n - 1 - i) * cell + cell / 2, "1.00",
+            fs=6.2, color=TEAL, ha="left")
+
+    plate(ax, g2x, gy, side, side)
+    txt(ax, g2x + side / 2, gy + side + 0.42, r"$A$：softmax 之后", fs=FS - 0.3)
+    note(ax, g2x + side / 2 + 0.34, gy + side + 0.16, r"每行和为 1", fs=6.6,
+         color=TEAL)
+    txt(ax, g2x + side / 2, gy - 0.34, r"下三角：只看得到自己和左边", fs=6.2,
+        color=GRAY)
+
+    note(ax, 0.42, 0.52,
+         "顺序不能反：先归一化再把右上角置零，行和就不再是 1，\n"
+         "输出的尺度会随行号从 $1$ 变到 $T$。", fs=7.0, ha="left")
+
+    save(fig, "05/causal-mask.png")
+
+
+# ---------------------------------------------------------------- 06 残差加法
+
+def fig_06_residual():
+    """第 6 章：残差流是一条宽度不变的加法通道，每层只写一个增量。"""
+    fig, ax = canvas(3.02)
+
+    bx, bw, by, bh = 0.75, 8.80, 4.60, 0.86
+    ax.add_patch(Rectangle((bx, by), bw, bh, facecolor=tint(NAVY, 0.10),
+                           edgecolor=NAVY_L, linewidth=0.8, zorder=2))
+    txt(ax, bx + 0.16, by + bh / 2, r"$x_0$：嵌入 + 位置", fs=7.4, ha="left")
+    txt(ax, bx + bw - 0.16, by + bh / 2, r"$x_L$", fs=8.0, ha="right")
+    note(ax, bx + bw / 2, by + bh + 0.28,
+         r"宽度始终是 $T\times d$，一层都没变")
+
+    cols = [2.55, 5.20, 7.85]
+    names = ["LN → 注意力", "LN → 前馈", "LN → 注意力"]
+    for k, (cx, nm) in enumerate(zip(cols, names)):
+        ax.plot([cx], [by], marker="o", ms=9.5, mfc="white", mec=NAVY,
+                mew=0.9, zorder=6)
+        txt(ax, cx, by, "+", fs=8.2, color=NAVY, z=7)
+        box(ax, cx - 0.92, 3.30, 1.84, 0.92, nm, fs=7.6, fc=BG, ec=NAVY_L)
+        arrow(ax, (cx, 4.25), (cx, by - 0.16), lw=0.9, shrink=0)
+        note(ax, cx + 0.16, by - 0.28, r"$\Delta_{%d}$" % (k + 1), fs=7.4,
+             color=GOLD, ha="left")
+
+    note(ax, bx + bw - 0.02, by + bh + 0.28, r"$\cdots$ 共 $L$ 层", fs=7.0, ha="right")
+
+    txt(ax, 5.20, 2.62,
+        r"$x_L=x_0+\sum_{l=1}^{L}\Delta_l$：输出是初值加上所有增量",
+        fs=8.2, color=INK)
+    note(ax, 5.20, 2.10,
+         r"删掉它：$\partial x_L/\partial x_0$ 只剩 $\partial f_L\cdots\partial f_1$ 连乘，"
+         r"每项略小于 1 时 50 层后趋近 0")
+    note(ax, 5.20, 1.64,
+         r"保留它：乘积里每一项都带 $I$，$I^{L}$ 这一条路径从不衰减")
+    note(ax, 5.20, 1.18,
+         r"代价：$\|x_L\|^2\approx\|x_0\|^2+L\sigma^2$，范数按 $\sqrt{L}$ 长")
+
+    save(fig, "06/residual-add.png")
+
+
+# ---------------------------------------------------------------- 08 RoPE 旋转
+
+def fig_08_rope():
+    """第 8 章：q、k 各按位置转一个角度，点积里只剩角度差。"""
+    fig, ax = canvas(3.12)
+
+    cx, cy, r = 2.55, 3.55, 1.72
+    ax.add_patch(plt.Circle((cx, cy), r, facecolor="none", edgecolor=LGRAY,
+                            linewidth=0.7, ls=(0, (3, 3)), zorder=1))
+    ax.plot([cx - r - 0.18, cx + r + 0.18], [cy, cy], color=LGRAY, lw=0.5, zorder=1)
+    ax.plot([cx, cx], [cy - r - 0.18, cy + r + 0.18], color=LGRAY, lw=0.5, zorder=1)
+
+    aq0, aq, ak0, ak = 20.0, 80.0, -45.0, 60.0
+
+    def vec(ang, col, lw, ls="-", lab="", lr=1.12, fs=8.0):
+        t = np.deg2rad(ang)
+        ax.plot([cx, cx + r * np.cos(t)], [cy, cy + r * np.sin(t)], color=col,
+                lw=lw, ls=ls, zorder=4, solid_capstyle="round")
+        ax.annotate("", xy=(cx + r * np.cos(t), cy + r * np.sin(t)),
+                    xytext=(cx + 0.97 * r * np.cos(t), cy + 0.97 * r * np.sin(t)),
+                    arrowprops=dict(arrowstyle="-|>", color=col, lw=lw,
+                                    mutation_scale=8), zorder=5)
+        if lab:
+            txt(ax, cx + r * lr * np.cos(t), cy + r * lr * np.sin(t), lab, fs=fs,
+                color=col)
+
+    vec(ak0, GRAY, 0.8, (0, (4, 2.5)), r"$k$")
+    vec(aq0, GRAY, 0.8, (0, (4, 2.5)), r"$q$")
+    vec(ak, GOLD, 1.5, "-", r"$k_n$")
+    vec(aq, NAVY, 1.5, "-", r"$q_m$")
+
+    from matplotlib.patches import Arc
+    for ang0, ang1, rr, col, lab, lp in [(aq0, aq, 0.52, NAVY, r"$m\theta$", 54),
+                                         (ak0, ak, 0.32, GOLD, r"$n\theta$", 6),
+                                         (ak, aq, 0.74, TEAL, r"$\Delta$", 70)]:
+        ax.add_patch(Arc((cx, cy), 2 * r * rr, 2 * r * rr, theta1=ang0, theta2=ang1,
+                         color=col, lw=0.8, zorder=6))
+        t = np.deg2rad(lp)
+        txt(ax, cx + r * rr * 1.18 * np.cos(t), cy + r * rr * 1.18 * np.sin(t), lab,
+            fs=7.0, color=col)
+
+    txt(ax, cx, cy - r - 0.58, "二维特例：一个平面、一个角速度", fs=7.0, color=GRAY)
+
+    # ---- 右侧推导与数字
+    gx = 5.55
+    note(ax, gx, 5.66, r"$q_m=R(m\theta)\,q$，$k_n=R(n\theta)\,k$", fs=7.6,
+         color=INK, ha="left")
+    note(ax, gx, 5.22, r"$q_m^{\top}k_n=q^{\top}R((n-m)\theta)\,k$", fs=8.0,
+         color=NAVY, ha="left")
+    note(ax, gx, 4.80, "右边只含位置差，绝对位置被约掉", fs=7.0, ha="left")
+    note(ax, gx, 4.42, r"$\cos\Delta\,(q_0k_0+q_1k_1)+\sin\Delta\,(q_1k_0-q_0k_1)$",
+         fs=7.0, color=GOLD, ha="left")
+
+    note(ax, gx, 3.78, r"取 $\theta=0.5$ rad/token，$m=4$，$n=10$：", fs=7.2,
+         color=INK, ha="left")
+    note(ax, gx, 3.42, r"$m\theta=2.0$ rad，$n\theta=5.0$ rad，$\Delta=3.0$ rad",
+         fs=7.2, ha="left")
+    note(ax, gx, 3.06, r"$\cos\Delta=-0.990$，$\sin\Delta=0.141$", fs=7.2, ha="left")
+    note(ax, gx, 2.68, "两个绝对角度都在变，差不变", fs=7.0, color=GRAY, ha="left")
+
+    note(ax, gx, 2.02, r"$d$ 维：拆成 $d/2$ 个平面，第 $i$ 个转 $\theta_i$", fs=7.2,
+         color=INK, ha="left")
+    note(ax, gx, 1.66, r"$\theta_i=\mathrm{base}^{-2i/d}$，$\lambda_i=2\pi/\theta_i$",
+         fs=7.2, ha="left")
+    note(ax, gx, 1.30, r"$d=128$：$\lambda_0=6.3$，$\lambda_{63}=5.4\times10^{4}$",
+         fs=7.2, ha="left")
+    note(ax, gx, 0.86, "每层、每头各转一次，角度相同", fs=7.0, color=GRAY, ha="left")
+
+    save(fig, "08/rope-rotate.png")
+
+
+# ---------------------------------------------------------------- 11 参数量分解
+
+def fig_11_params():
+    """第 11 章：两个模型的参数按部件拆开，看重心落在哪里。"""
+    fig, ax = canvas(3.05)
+
+    x0, x1 = 1.95, 9.75
+    span = x1 - x0
+
+    b7 = [("Q", 0.0797, NAVY), ("K/V", 0.1594, TEAL), ("O", 0.0797, NAVY_L),
+          ("前馈", 0.6425, tint(GOLD, 0.55)), ("词表", 0.0387, "#FFFFFF")]
+    b70 = [("Q", 0.0778, NAVY), ("K/V", 0.0390, TEAL), ("O", 0.0778, NAVY_L),
+           ("前馈", 0.8170, tint(GOLD, 0.55)), ("词表", 0.0076, "#FFFFFF")]
+
+    def bar(y, segs, title, sub):
+        x = x0
+        txt(ax, x0 - 0.18, y + 0.44, title, fs=8.0, color=INK, ha="right")
+        note(ax, x0 - 0.18, y + 0.18, sub, fs=6.6, ha="right")
+        for name, frac, col in segs:
+            wd = max(frac * span, 0.05)
+            ax.add_patch(Rectangle((x, y), wd, 0.62, facecolor=col,
+                                   edgecolor=NAVY_L if frac < 0.02 else "white",
+                                   linewidth=0.5, zorder=3))
+            if wd > 0.24:
+                dark = col in (NAVY, TEAL, NAVY_L)
+                txt(ax, x + wd / 2, y + 0.31, f"{frac * 100:.0f}", fs=7.0,
+                    color="white" if dark else INK)
+            x += wd
+        ax.add_patch(Rectangle((x0, y), span, 0.62, facecolor="none",
+                               edgecolor=GRAY, linewidth=0.6, zorder=5))
+
+    bar(4.30, b7, "7B 稠密", r"$d$=4096  $L$=32")
+    bar(2.95, b70, "70B GQA", r"$d$=8192  $L$=80")
+
+    lx = x0
+    for name, col in [("Q 投影", NAVY), ("K/V 投影", TEAL), ("O 投影", NAVY_L),
+                      ("前馈", tint(GOLD, 0.55)), ("词表嵌入", "#FFFFFF")]:
+        ax.add_patch(Rectangle((lx, 2.14), 0.24, 0.24, facecolor=col,
+                               edgecolor=GRAY, linewidth=0.5, zorder=3))
+        txt(ax, lx + 0.32, 2.26, name, fs=6.8, color=INK, ha="left")
+        lx += 1.62
+
+    note(ax, 5.85, 1.56,
+         "数字是占总参数的百分比。同一宽度，前馈占六成到八成；"
+         "GQA 只在 K/V 那一段动手", fs=7.0)
+    note(ax, 5.85, 1.10,
+         r"7B：$12Ld^2$ 得 64.4 亿，加两份词表 2.6 亿，共 67.4 亿", fs=7.0)
+    note(ax, 5.85, 0.66,
+         r"70B：一层 8.56 亿，$80$ 层 684.5 亿，加词表 689.7 亿", fs=7.0)
+
+    save(fig, "11/param-breakdown.png")
+
+
 # ---------------------------------------------------------------- 入口
 
 FIGS = {
     "01": fig_01_ngram,
     "03": fig_03_rnn,
     "03b": fig_03_lstm,
+    "03c": fig_03_bptt,
     "04": fig_04_additive_attention,
     "05": fig_05_qkv,
+    "05b": fig_05_mask,
+    "06": fig_06_residual,
     "07": fig_07_multihead,
+    "08": fig_08_rope,
+    "11": fig_11_params,
 }
 
 
